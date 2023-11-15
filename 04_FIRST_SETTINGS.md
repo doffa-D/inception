@@ -1,98 +1,98 @@
-# Предварительная настройка Docker
+# Pre-configuring Docker
 
-> Не забудь сделать снимок состояния перед каждым новым этапом сборки!
+> Don't forget to take a snapshot of the state before each new build step!
 
-## Шаг 1. Установка и конфигурация sudo
+## Step 1. Install and configure sudo
 
-Тепрь нам нужно начинать работать с докером. Для начала сделаем его удобным для нас, а так же протестируем его работу.
+Now we need to start working with Docker. First, let's make it convenient for us, and also test its operation.
 
-> Все действия данного гайда лучше выполнять через терминал чтобы было возможно копипастить команды и код
+> It is better to perform all actions in this guide through the terminal so that you can copy-paste commands and code
 
-На этом этапе нам понадобится наш терминал. Логинимся через терминал, а не в virtualbox, сначала под суперпользователем:
+At this point we will need our terminal. Login through the terminal, and not into virtualbox, first as a superuser:
 
 ```ssh root@localhost -p 42```
 
-По умолчанию докер запускается либо с привилегией суперпользователя, либо любым пользователем, состоящем в группе docker и обладающим возможность делать запросы под суперпользователем (например, через sudo). 
+By default, Docker is launched either with superuser privileges, or by any user who is a member of the docker group and has the ability to make requests as superuser (for example, via sudo).
 
-Ранее мы установили утиллиту sudo, позволяющую пользователю делать запросы от имени root.
+Previously, we installed the sudo utility, which allows the user to make queries as root.
 
-Для того, чтобы наш пользователь мог делать такие запросы в системе, правим конфиг /etc/sudoers:
+In order for our user to make such requests in the system, we edit the /etc/sudoers config:
 
 ```nano /etc/sudoers```
 
-Наша задача - добавить запись с именем нашего пользователя и правами, равнозначными правам root:
+Our task is to add an entry with our user name and rights equivalent to root rights:
 
-![Настройка Docker](media/setting_docker/step_5.png)
+![Setting Docker](media/setting_docker/step_5.png)
 
-![Настройка Docker](media/setting_docker/step_6.png)
+![Setting Docker](media/setting_docker/step_6.png)
 
-Сохраняем изменения и закрываем файл.
+Save the changes and close the file.
 
-## Шаг 2. Добавление пользователя в группу docker
+## Step 2: Add a user to the docker group
 
-Теперь добавим нашего пользователя в группу ```docker```. Это позволит нам выполнять команды докера без необходимости вызова sudo. (да, мы установили sudo не для докера, а для удобства работы с системой).
+Now let's add our user to the ```docker``` group. This will allow us to execute docker commands without having to call sudo. (yes, we installed sudo not for Docker, but for the convenience of working with the system).
 
-Вот так выглядит список групп нашего пользователя сейчас:
-
- ```groups <your_nickname>```
-
-![Настройка Docker](media/setting_docker/step_0.png)
-
-Добавим же нашего пользователя в группу командой 
-
-```sudo usermod -aG docker <your_nickname>```
-
-И проверим, что добавление произошло:
+This is what the list of our user’s groups looks like now:
 
 ```groups <your_nickname>```
 
-![Настройка Docker](media/setting_docker/step_1.png)
+![Setting Docker](media/setting_docker/step_0.png)
 
-Как мы можем видеть, в списке групп в самом конце добавилась группа docker. Это значит, что теперь мы можем вызывать наш докер из под обычного пользователя (если мы проделали добавление в группу не под root, а под пользователем через sudo, надо перелогиниться).
+Let's add our user to the group with the command
 
-## Шаг 3. Тестовая конфигурация
+```sudo usermod -aG docker <your_nickname>```
 
-Так переключимся же на нашего пользователя и перейдём в его домашний каталог:
+And let's check that the addition happened:
+
+```groups <your_nickname>```
+
+![Setting Docker](media/setting_docker/step_1.png)
+
+As we can see, the docker group has been added to the list of groups at the very end. This means that we can now call our docker as a regular user (if we added to the group not as root, but as a user via sudo, we need to re-login).
+
+## Step 3. Test configuration
+
+So let's switch to our user and go to his home directory:
 
 ```su <your_nickname>```
 
 ```cd ~/```
 
-Так же скачаем в корень простую конфигурацию из одного докер-контейнера для проверки работы системы:
+We will also download a simple configuration from one Docker container to the root to check the operation of the system:
 
 ```git clone https://github.com/codesshaman/simple_docker_nginx_html.git```
 
-![Настройка Docker](media/setting_docker/step_2.png)
+![Setting Docker](media/setting_docker/step_2.png)
 
-Теперь мы можем переходить в эту папку и запускать контейнер:
+Now we can go to this folder and start the container:
 
 ```cd simple_docker_nginx_html```
 
 ```docker-compose up -d```
 
-Через некоторое время наш контейнер сбилдится и мы увидим сообщение об успешном запуске:
+After some time, our container will fail and we will see a message about successful launch:
 
-![Настройка Docker](media/setting_docker/step_3.png)
+![Setting Docker](media/setting_docker/step_3.png)
 
-А значит, мы можем протестировать запущенный контейнер и правильность настройки конфигурации. Открываем браузер хостовой машины чтобы проверить это.
+This means we can test the running container and the correct configuration settings. Open the browser of the host machine to check this.
 
-Если на шаге 02 при пробросе портов мы всё сделали правильно, значит 80-й порт открыт, и зайдя в браузер по адресу локального хоста ```http://127.0.0.1``` (именно http, не https!) мы увидим следующую картину:
+If at step 02 when forwarding ports we did everything correctly, then port 80 is open, and by going to the browser at the local host address ```http://127.0.0.1``` (namely http, not https!) we will see the following picture:
 
-![Настройка Docker](media/setting_docker/step_4.png)
+![Setting Docker](media/setting_docker/step_4.png)
 
-Если вдруг мы видим что-либо другое, значит, у нас не открыты порты или 80-й порт чем-то занят на хостовой машине. Пройдитесь по гайду 01 и удостоверьтесь, что порты открыты, а так же проверьте все запущенные приложения. Если среди них есть сервера или иные приложения для работы с локальным хостом, отключаем их.
+If suddenly we see something different, it means that our ports are not open or port 80 is occupied with something on the host machine. Go through guide 01 and make sure the ports are open, and also check all running applications. If among them there are servers or other applications for working with the local host, disable them.
 
-## Шаг 4. Создание директорий и файлов проекта
+## Step 4. Create project directories and files
 
-Далее нам нужно создать множество директорий и файлов в соответствии с заданием.
+Next, we need to create many directories and files according to the task.
 
-Это рутинное занятие, в котором нет ничего сложного: команда ```mkdir``` создаёт директорию, команда ```touch``` создаёт файл, ```cd``` перемещает нас по относительному или абсолютному пути, прописанному после команды, а ```cd ..``` переносит нас на каталог выше. Так же ``pwd`` показывает где мы находимся, ``cd ~`` возвращает нас в домашний каталог.
+This is a routine task in which there is nothing complicated: the ```mkdir``` command creates a directory, the ```touch``` command creates a file, ```cd``` moves us along the relative or absolute path specified after the command , and ```cd ..``` takes us to the directory above. Also ``pwd`` shows where we are, ``cd ~`` returns us to the home directory.
 
-Если нет желания заниматься данной рутиной, я сделал скрипт make_directories.sh, который выполняет все эти действия автоматически.
+If you don’t want to do this routine, I made a script make_directories.sh that performs all these actions automatically.
 
 ``nano make_directories.sh``
 
-Вот его код:
+Here is his code:
 
 ```
 #!/bin/bash
@@ -138,27 +138,27 @@ echo ".git" > project/srcs/requirements/wordpress/.dockerignore
 echo ".env" >> project/srcs/requirements/wordpress/.dockerignore
 ```
 
-> Не забываем менять <your_nickname> на свой ник!
+> Don't forget to change <your_nickname> to your nickname!
 
-В директориях tools у wordpress и mariadb мы создаём пустой файл .gitkeep, служащий лишь для того, чтобы эти пустые папки попали в индексацию git. Без него они не выгрузятся в репозиторий. А папки эти мы не будем использовать, так как у mariadb и wp будет всего по одному конфигу. Большинство простых операций мы выполним непосредственно в dockerfile, отбросив необходимость в лишних файлах извне.
+In the tools directories of wordpress and mariadb, we create an empty .gitkeep file, which serves only to ensure that these empty folders are indexed by git. Without it, they will not be uploaded to the repository. We won’t use these folders, since mariadb and wp will only have one config each. We will perform most simple operations directly in the dockerfile, eliminating the need for extra files from the outside.
 
-Создадим файл с расширением .sh, закинув туда данный код:
+Let's create a file with a .sh extension and add this code there:
 
 ``cd ~/``
 
 ``nano create_folders.sh``
 
-![Настройка Docker](media/setting_docker/step_7.png)
+![Setting Docker](media/setting_docker/step_7.png)
 
-Его необходимо дать разрешение на исполнение:
+It must be given permission to execute:
 ``chmod +x create_folders.sh``
 
-После этого его можно запустить:
+After this you can run it:
 
 ``./create_folders.sh``
 
-И Вуаля - все директории нашего проекта (и даже некоторые необходимые файлы в них) созданы!
+And Voila - all the directories of our project (and even some necessary files in them) have been created!
 
-![установка системы](media/stickers/e.png)
+![system installation](media/stickers/e.png)
 
-Ну а если всё-таки есть желание изучать bash и сделать всё руками, можно посмотреть на содержание скрипта. В нём я использую относительные пути, находясь в корневом каталоге пользователя, однако по каталогам можно перемещаться и делать папки внутри других папок.
+Well, if you still want to learn bash and do everything by hand, you can look at the contents of the script. In it, I use relative paths, being in the user's root directory, but you can navigate through directories and make folders inside other folders.

@@ -1,150 +1,150 @@
-# Установка Debian Linux в Virtualbox
+# Installing Debian Linux in Virtualbox
 
-Итак, мы приступаем к проекту. Даже если ранее мы не сталкивались с контейнеризацией, а born2beRoot казался нам кошмаром, мы не должны расстраиваться, так как данный гай проведёт нас по всем этапам проекта, начиная с азов контейнеризации на простых примерах и заканчивая бонусной частью. В общем, настроение у нас должно быть боевое, как у этого парня:
+So, we start the project. Even if we have not encountered containerization before, and born2beRoot seemed like a nightmare to us, we should not be upset, since this guy will guide us through all stages of the project, starting with the basics of containerization with simple examples and ending with the bonus part. In general, we should be in a fighting mood, like this guy:
 
-![установка системы](media/stickers/justdoit.png)
+![system installation](media/stickers/justdoit.png)
 
-Всё, что нам нужно - это прямые руки, школьный мак или любая персональная ЭВМ с установленным ПО от VirtualBox. Поехали.
-## Шаг 1. Скачивание
+All we need is straight hands, a school poppy, or any personal computer with installed software from VirtualBox. Go.
+## Step 1. Download
 
-Заходим на [официальный сайт](https://www.debian.org/ "скачать debian") и скачиваем веб-инсталлер
+Go to [official website](https://www.debian.org/ "download debian") and download the web installer
 
-![скачивание debian linux](media/install_debian/install_step_0.png)
+![download debian linux](media/install_debian/install_step_0.png)
 
-## Шаг 2. Запуск
+## Step 2. Launch
 
-### 2.1 Создание виртуальной машины
+### 2.1 Creating a virtual machine
 
-Создаём виртуальную машину. Называем как-либо наш проект (я назвал просто Debian) и выставляем правильную конфигурацию системы. Если проект делается на школьном mac, его папку нужно размещать в goinfre:
+We create a virtual machine. Let’s name our project something (I just called it Debian) and set the correct system configuration. If the project is being done on a school Mac, its folder should be placed in goinfre:
 
-![настройка virtualbox](media/install_debian/install_step_1.jpeg)
+![virtualbox setup](media/install_debian/install_step_1.jpeg)
 
-### 2.2 Выделение ресурсов
+### 2.2 Resource Allocation
 
-Оперативной памяти под проект можно выделить от 512 МБ если на ПК 4-8 ГБ до 4096 МБ если на ПК от 16 и выше. Больше 4 ГБ памяти на данный проект выделять бессмысленно.
+RAM for the project can be allocated from 512 MB if the PC has 4-8 GB to 4096 MB if the PC has 16 or higher. It makes no sense to allocate more than 4 GB of memory for this project.
 
-![настройка virtualbox](media/install_debian/install_step_2.jpeg)
+![virtualbox setup](media/install_debian/install_step_2.jpeg)
 
- Формат выбираем VDI или VHD:
+Select the format VDI or VHD:
 
-![настройка virtualbox](media/install_debian/install_step_3.png)
+![virtualbox setup](media/install_debian/install_step_3.png)
 
-Выбираем динамический формат и выделяем под диск 8 гигабайт
+Select a dynamic format and allocate 8 gigabytes for the disk
 
-![настройка virtualbox](media/install_debian/install_step_4.png)
+![virtualbox setup](media/install_debian/install_step_4.png)
 
-Так же не забудьте выставить удобное разрешение экрана (коэффициент масштабирования), если работаете на mac.
+Also, do not forget to set a convenient screen resolution (scaling factor) if you are working on a Mac.
 
- На mac обычно нормально 200% или 300%:
+On mac 200% or 300% is usually ok:
 
-![коэффициент масштабирования](media/install_debian/install_step_5.png)
+![scaling factor](media/install_debian/install_step_5.png)
 
-### 2.3 Выделение ресурсов процессора
+### 2.3 CPU resource allocation
 
-Так же можно добавить системе ещё ядер. Больше четырёх добавлять избыточно:
+You can also add more cores to the system. Adding more than four is redundant:
 
-![ЦПУ](media/install_debian/install_step_6.png)
+![CPU](media/install_debian/install_step_6.png)
 
-## Шаг 3. Установка
+## Step 3. Installation
 
-### 3.1 Начало установки
+### 3.1 Start installation
 
-После всех настроек запускаем наш проект. При старте нас встречает меню установки. Я выбираю обычный инсталлер, но при желании можно использовать и графический, это дело вкуса.
+After all the settings, we launch our project. At startup we are greeted with an installation menu. I choose a regular installer, but if you wish, you can use a graphic one, it’s a matter of taste.
 
-![установка](media/install_debian/install_step_7.png)
+![installation](media/install_debian/install_step_7.png)
 
-### 3.2 Выбор языка и локации
+### 3.2 Selecting language and location
 
-Мы можем выбрать американский английский (другие языки на проекте попросту не понадобятся), а в качестве локации указать Россию:
+We can choose American English (other languages ​​are simply not needed on the project), and specify Russia as the location:
 
-![язык и локация](media/install_debian/install_step_8.png)
+![language and location](media/install_debian/install_step_8.png)
 
-![язык и локация](media/install_debian/install_step_9.png)
+![language and location](media/install_debian/install_step_9.png)
 
-![язык и локация](media/install_debian/install_step_10.png)
+![language and location](media/install_debian/install_step_10.png)
 
-![язык и локация](media/install_debian/install_step_11.png)
+![language and location](media/install_debian/install_step_11.png)
 
-А в качестве базовой локали оставляем английский:
+And we leave English as the base locale:
 
-![язык и локация](media/install_debian/install_step_12.png)
+![language and location](media/install_debian/install_step_12.png)
 
-![язык и локация](media/install_debian/install_step_13.png)
+![language and location](media/install_debian/install_step_13.png)
 
-### 3.3 Настройка хоста и пользователей
+### 3.3 Setting up host and users
 
-Далее система предложит выбрать имя хоста. Можно назвать хост inception, однако я оставил дефолтное имя ```debian```:
+Next, the system will prompt you to select a host name. You can call the host inception, but I left the default name ```debian```:
 
-![имя хоста](media/install_debian/install_step_14.png)
+![hostname](media/install_debian/install_step_14.png)
 
-Доменное имя пропускаем, оставив строку пустой.
+We skip the domain name, leaving the line empty.
 
-Система предложит нам задать имя суперпользователя (root). Я назначаю руту простой пароль - цифру ```2```.
+The system will prompt us to set the superuser name (root). I assign a simple password to root - the number ```2```.
 
-Далее нам предложат назвать как-то и обычного пользователя. Я ввожу свой ник в интре:
+Next, we will be asked to name the regular user. I enter my nickname in the intro:
 
-![имя пользователя](media/install_debian/install_step_15.png)
+![username](media/install_debian/install_step_15.png)
 
-Принимаю это же имя в качестве имени аккаунта и ввожу простой пароль - единицу
+I accept the same name as the account name and enter a simple password - one
 
-### 3.4 Настройка временных зон
+### 3.4 Setting time zones
 
-Выбираем свой часовой пояс.
+Select your time zone.
 
-![временная зона](media/install_debian/install_step_16.png)
+![timezone](media/install_debian/install_step_16.png)
 
-### 3.5 Разметка диска
+### 3.5 Disk partitioning
 
-Далее запустится программа разметки. Нам не обязательно вдаваться в подробности файловой системы линукса, потому выбираем ```use entire disk``` - использовать весь диск.
+Next, the markup program will launch. We don't have to go into the details of the Linux file system, so we select ```use entire disk``` - use the entire disk.
 
-![разметка диска](media/install_debian/install_step_17.png)
+![disk layout](media/install_debian/install_step_17.png)
 
-Выбираем единственный доступный нам виртуальный диск:
+We select the only virtual disk available to us:
 
-![разметка диска](media/install_debian/install_step_18.png)
+![disk layout](media/install_debian/install_step_18.png)
 
-Выбираем хранить все файлы в одном разделе:
+We choose to store all files in one section:
 
-![разметка диска](media/install_debian/install_step_19.png)
+![disk layout](media/install_debian/install_step_19.png)
 
-И даём команду завершить разметку и записать изменения на диск:
+And we give the command to complete the markup and write the changes to disk:
 
-![разметка диска](media/install_debian/install_step_20.png)
+![disk layout](media/install_debian/install_step_20.png)
 
-Подтверждаем серьёзность наших намерений:
+We confirm the seriousness of our intentions:
 
-![разметка диска](media/install_debian/install_step_21.png)
+![disk layout](media/install_debian/install_step_21.png)
 
-### 3.6 Установка базовой системы
+### 3.6 Basic system installation
 
-![установка системы](media/install_debian/install_step_22.png)
+![system installation](media/install_debian/install_step_22.png)
 
-После разметки запустится установка базовой системы. Далее я опишу только те шаги, которые важны нам, остальные действия можно будет пропустить нажав ```enter```
+After marking, the installation of the basic system will begin. Next, I will describe only those steps that are important to us; the remaining steps can be skipped by pressing ```enter```
 
-Всю лишнюю шелуху вроде дополнительного CD-образа, выбора зеркал репозиториев или опроса популярности пакетов просто пропускаем.
+We simply skip all the extra fluff like an additional CD image, selecting repository mirrors, or polling the popularity of packages.
 
-### 3.6.1 Выбор ПО
+### 3.6.1 Software selection
 
-Нам нужен только ssh-сервер, потому пробелом убираем галочки со всего остального. В качестве графического окружения мы установим позже более лёгкий openbox - он нам будет нужен лишь для того, чтобы открыть наш сайт. Системные утиллиты нам так же не нужны.
+We only need an ssh server, so use a space to uncheck everything else. We will later install a lighter openbox as a graphical environment - we will only need it to open our site. We don't need system utilities either.
 
-![установка системы](media/install_debian/install_step_23.png)
+![system installation](media/install_debian/install_step_23.png)
 
-### 3.6.1 Выбор ПО
+### 3.6.1 Software selection
 
-В конце концов система наконец скажет нам что хочет установить системный загрузчик в главный раздел:
+In the end, the system will finally tell us that it wants to install the system bootloader on the main partition:
 
-![установка системы](media/install_debian/install_step_24.png)
+![system installation](media/install_debian/install_step_24.png)
 
-Выбираем раздел (он у нас один):
+Select a section (we have only one):
 
-![установка системы](media/install_debian/install_step_25.png)
+![system installation](media/install_debian/install_step_25.png)
 
-И установка завершиться:
+And the installation is completed:
 
-![установка системы](media/install_debian/install_step_26.png)
+![system installation](media/install_debian/install_step_26.png)
 
-Принимаем предложение закончить установку:
+We accept the offer to complete the installation:
 
-![установка системы](media/install_debian/install_step_27.png)
+![system installation](media/install_debian/install_step_27.png)
 
-Таким образом наша система установлена. Переходим к следующему гайду и накатываем весь необходимый нам софт!
+Thus our system is installed. Let's move on to the next guide and download all the software we need!

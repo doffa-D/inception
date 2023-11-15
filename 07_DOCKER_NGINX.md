@@ -1,301 +1,301 @@
-# Создание контейнера Nginx
+# Create an Nginx container
 
-И вот мы сделали снапшот, сохранили конфигурацию в облако или на флешку и готовы приступать к развёртыванию контейнеров непосредственно проекта.
+And so we took a snapshot, saved the configuration to the cloud or to a flash drive and are ready to start deploying containers for the project itself.
 
-Сначала давайте познакомимся с технологиями, которые мы будем использовать в наших контейнерах.
+First, let's get acquainted with the technologies that we will use in our containers.
 
-В нашем задании дана следующая схема:
+Our assignment gives the following diagram:
 
-![настройка nginx](media/nginx_deploy/step_1.png)
+![nginx setup](media/nginx_deploy/step_1.png)
 
-Давайте посмотрим, какой софт нам необходим, чтобы реализовать то, что нарисовано на схеме:
+Let's see what software we need to implement what is shown in the diagram:
 
-Технология | Назначение | Создатель | Порты
------- | ------ | ------ | ------ | 
-Nginx | Проксирующий веб-сервер | Игорь Сысоев (Россия) | 443 |
-PHP	| Скриптовой язык для веб | Расмус Лердорф (Дания) | - |
-Php-Fpm	| Набор библиотек для FastCGI API | Андрей Нигматулин (Россия) | 9000 |
-Wordpress | Системуа управления содержимым | Мэтью Мулленвег (США) | - |
-MariaDB | Реляционная база данных | Микаэль Видениус (Финляндия) | 3306 |
+Technology | Destination | Creator | Ports
+------ | ------ | ------ | ------ |
+Nginx | Proxying web server | Igor Sysoev (Russia) | 443 |
+PHP | Scripting language for the web | Rasmus Lerdorf (Denmark) | - |
+Php-Fpm | Set of libraries for FastCGI API | Andrey Nigmatulin (Russia) | 9000 |
+Wordpress | Content Management System | Matthew Mullenweg (USA) | - |
+MariaDB | Relational Database | Mikael Widenius (Finland) | 3306 |
 ---
-Эта таблица сразу же приобщает нас к перкрасному, ибо здесь прекрасно всё.
+This table immediately introduces us to the beautiful, because everything here is beautiful.
 
-Лучший проксирующий веб-сервер, созданный нашим соотечественником Игорем Сысоевым, занимающий 30% рынка серверов. Именно на этой прекрасно задокументированной софтине держится 30% интернета и львиная доля больших и высоконагруженных сайтов, ибо именно под высокие нагрузки этот сервер и писался c 2002 года.
+The best proxy web server, created by our compatriot Igor Sysoev, occupying 30% of the server market. It is this well-documented software that powers 30% of the Internet and the lion’s share of large and highly loaded sites, because this server has been written for high loads since 2002.
 
-Именно его мы будем настраивать в этом гайде, а пока познакомимся с остальными нужными нам технологиями.
+This is what we will be setting up in this guide, but for now let’s get acquainted with the rest of the technologies we need.
 
-Язык PHP создан датчанином Лердорфом для личных целей в 1995 году, однако он быстро завоевал популярность в веб-разработке и до сих пор является одним из лидирующих языков для веба.
+The PHP language was created by the Dane Lerdorf for personal purposes in 1995, but it quickly gained popularity in web development and is still one of the leading languages ​​for the web.
 
-Библиотека php-fpm от нашего соотечественника Андрея Нигматулина стала стандартным API между php и веб-серверами, в том числе Nginx-ом. Именно она подружит наш nginx с php. Устанавливается в контейнер с php.
+The php-fpm library from our compatriot Andrey Nigmatulin has become a standard API between php and web servers, including Nginx. It is she who will make friends between our nginx and php. Installed in a container with php.
 
-Wordpress - замечательная и лёгкая в настройке CMS - система, изучив которую можно начинать принимать заказы на сайты на фрилансе :). Создана в 2003 году.
+Wordpress is a wonderful and easy to configure CMS system, after studying which you can start accepting orders for freelance websites :). Created in 2003.
 
-MariaDB - легковесный аналог базы данных MySQL. И то и другое - творение финна Видениуса, назвавшего MySQL в честь своей старшей дочери Мю, а MariaDB - в честь младшей, Марии.
+MariaDB is a lightweight analogue of the MySQL database. Both are the creation of the Finn Widenius, who named MySQL after his eldest daughter My, and MariaDB after his youngest daughter, Maria.
 
-Все эти технологии относительно просты, лакончины и функциональны, что делает их прекрасным выбором и для начинающих веб-программистов, и для профессионалов.
+All of these technologies are relatively simple, clean, and functional, making them an excellent choice for both beginning web programmers and professionals.
 
-И всё это работает под управлением ОС Linux - прекрасного творения финна Линуса Торвальдса, на котором зиждется весь современный интернет, и крутится внутри контейнеров Docker, системы контейнеризации, созданной американцем Соломоном Хайксом. Ядро Линукс появилось в 1992-93, а Docker в 2013-м.
+And all this runs under the Linux OS - the wonderful creation of the Finn Linus Torvalds, on which the entire modern Internet is based, and runs inside Docker containers, a containerization system created by the American Solomon Hikes. The Linux kernel appeared in 1992-93, and Docker in 2013.
 
-![настройка nginx](media/nginx_deploy/step_0.png)
+![nginx setup](media/nginx_deploy/step_0.png)
 
-Вот так два американца, двое русских и два финна создали все необходимые нам для задания технологии. И как-то случайно между ними затесался живущий в Канаде датчанин, создатель одной из базовых технологий - самого языка, который используется нами для wordpress.
+This is how two Americans, two Russians and two Finns created all the technologies we needed for the task. And somehow, by chance, a Dane living in Canada, the creator of one of the basic technologies - the very language that we use for WordPress - got in among them.
 
-Итак, приступим к настройке сервера с Nginx.
+So, let's start setting up a server with Nginx.
 
-## Шаг 1. Введение в Docker
+## Step 1: Introduction to Docker
 
-Докер образ - это набор окружения, необходимого для запуска определённого софта. От эмуляторов по типу virtualbox он отличается тем, что в контенере не содержится полноценной операционной системы, контейнер использует ядро Linux и внутрь него помещаются не все, а только необходимые для запуска софта программы и библиотеки.
+A Docker image is a set of environments necessary to run certain software. It differs from virtualbox-type emulators in that the container does not contain a full-fledged operating system, the container uses the Linux kernel and not everything is placed inside it, but only the programs and libraries necessary to run the software.
 
-Таким образом контейнер весит значительно меньше, чем эмулируемая система. Убедимся в этом наглядно. Посмотрим, сколько весит наша ОС в установленном виде:
+Thus, the container weighs significantly less than the emulated system. Let's see this clearly. Let's see how much our OS weighs in its installed form:
 
-![настройка nginx](media/nginx_deploy/step_2.png)
+![nginx setup](media/nginx_deploy/step_2.png)
 
-И сравним это с тем же образом одиннадцатого debian на [Docker Hub](https://hub.docker.com/ "docker hub") - официальном хранилище образов Docker:
+And compare this with the same image of the eleventh debian on [Docker Hub](https://hub.docker.com/ "docker hub") - the official Docker image repository:
 
-![настройка nginx](media/nginx_deploy/step_3.png)
+![nginx setup](media/nginx_deploy/step_3.png)
 
-Образ весит всего 50 МБ в сжатом виде (сжатый диск с Debian у нас весил 950 МБ!). После распаковки этот образ будет весить около 150 МБ. Вот такая значительная разница. И это далеко не предел.
+The image weighs only 50 MB in compressed form (our compressed Debian disk weighed 950 MB!). Once unpacked, this image will weigh about 150 MB. That's such a significant difference. And this is far from the limit.
 
-Всё потому, что для запуска отдельного софта не нужна вся полноценная операционная система, достаточно рабочего ядра и некоторого окружения из всех зависимостей - модулей, библиотек, пакетов и скриптов. По такому принципу работает wine, само название которого гласит что Wine - Is Not Emulator. Он помогает запускать виндовые приложения в среде линукс, устанавливая только нужные зависимости и ничего лишнего.
+This is because to run individual software you do not need an entire full-fledged operating system, just a working kernel and some environment of all the dependencies - modules, libraries, packages and scripts. Wine works on this principle, the very name of which says that Wine is Not Emulator. It helps to run Windows applications in the Linux environment, installing only the necessary dependencies and nothing unnecessary.
 
-Мы будем использовать легковесную систему alpine, которая используется для контейнеров и микроконтроллеров, но может так же быть установлена в эмулятор или на реальное железо. Система отличается крайне малым весом: около 50 мегабайт вместе с ядром, 30 мегабайт в распакованном и 2,5 (!) мегабайт в сжатом виде (да, репозитории linux используют продвинутые методы сжатия для экономии трафика, но полноценная ОС весом 2,5 МБ всё равно удивляет):
+We will use the lightweight alpine system, which is used for containers and microcontrollers, but can also be installed in an emulator or on real hardware. The system is extremely lightweight: about 50 megabytes with the kernel, 30 megabytes unpacked and 2.5 (!) megabytes compressed (yes, Linux repositories use advanced compression methods to save traffic, but a full-fledged OS weighing 2.5 MB is all equally surprising):
 
-![настройка nginx](media/nginx_deploy/step_7.png)
+![nginx setup](media/nginx_deploy/step_7.png)
 
-Разница сжатого формата с тем же debian - аж в 20 раз! Это было достигнуто благодаря оптимизации всего и вся, но это же накладывает ограничения. Так в системе используется легковесный apk вместо привычного apt, нет полноценного bash, вместо него используется sh, естественно, [свой набор репозиториев](https://pkgs.alpinelinux.org/packages "список пакетов alpine") и много других особенностей.
+The difference between the compressed format and the same debian is as much as 20 times! This was achieved by optimizing everything and everyone, but this also imposes limitations. So the system uses a lightweight apk instead of the usual apt, there is no full-fledged bash, sh is used instead, of course, [its own set of repositories](https://pkgs.alpinelinux.org/packages "list of alpine packages") and many other features.
 
-Впрочем, как и в любой open-sources linux сюда многое можно добавить. И именно этот дистр стал основной для многих docker-проектов из-за малого веса, высокой скорости работы и высокой отказоустойчивости. Чем больше и сложнее система, тем больше и точек отказа, стало быть, легковесные дистрибутивы имеют в этом случае большие преимущества.
+However, as with any open-source Linux, a lot can be added here. And it is this distro that has become the main one for many docker projects due to its low weight, high speed and high fault tolerance. The larger and more complex the system, the more points of failure, therefore, lightweight distributions have great advantages in this case.
 
-Итак, когда мы закончили ревью и разобрались в отличии эмуляторов и контейнеров, переходим к изучению того, как работает Docker.
+So, when we finished the review and understood the differences between emulators and containers, we move on to studying how Docker works.
 
-## Шаг 2. Создание Dockerfile
+## Step 2: Create a Dockerfile
 
-В Докере за конфигурацию отвечает специальный файл, который называется Dockerfile. В нём прописывается набор софта, который мы хотим развернуть внутри данного контейнера.
+In Docker, a special file called Dockerfile is responsible for the configuration. It specifies a set of software that we want to deploy inside this container.
 
-Переходим в папку нашего nginx:
+Let's go to our nginx folder:
 
 ```cd ~/project/srcs/requirements/nginx/```
 
-Создаём в ней Dockerfile:
+We create a Dockerfile in it:
 
 ```nano Dockerfile```
 
-И прописываем в нём инструкцию FROM, которая указывает из какого образа мы будем разворачивать наш контейнер. По subject нам запрещено указывать лейблы вроде alpine:latest, автоматически присваиваемые последним версиям alpine в репозиториях dockerhub. Потому заходим на [официальный сайт](https://www.alpinelinux.org/ "версии alpine") системы и смотрим, какой выпуск самый последний. На момент написания гайда это был alpine 3.16.2, ну а для инструкции FROM будет достаточно указать младшую версию:
+And we write in it the FROM instruction, which indicates from which image we will deploy our container. By subject, we are prohibited from specifying labels like alpine:latest, which are automatically assigned to the latest versions of alpine in the dockerhub repositories. Therefore, we go to the [official website](https://www.alpinelinux.org/ “alpine versions”) of the system and see which release is the latest. At the time of writing this guide, it was alpine 3.16.2, but for the FROM statement it will be enough to indicate the minor version:
 
 ```FROM alpine:3.16```
 
-Подробнее о инструкциях можно посмотреть в [этом видео](https://www.youtube.com/watch?v=wskg5903K8I "docker от Антона Павленко"), здесь же разберём лишь некоторые из них.
+More details about the instructions can be found in [this video](https://www.youtube.com/watch?v=wskg5903K8I "docker from Anton Pavlenko"), but here we will look at just a few of them.
 
-Далее мы прописываем, какой софт и как мы хотим установить внутрь контейнера. В этом нам поможет инструкция RUN.
+Next, we specify what software and how we want to install it inside the container. The RUN instruction will help us with this.
 
-Инструкция ``RUN`` создаёт новый слой образа с результатом вызванной команды, подобно тому, как система снапшотов сохраняет изменения в виртуальной машине. Собственно, сам образ и состаит из таких вот слоёв-изменений.
+The ``RUN`` instruction creates a new image layer with the result of the command called, similar to how the snapshot system saves changes to a virtual machine. Actually, the image itself consists of such layers-changes.
 
-Из ``RUN`` невозможно запустить приложение напрямую. В ряде случаев это можно делать через скрипт, но в целом для запуска используются инструкции ``CMD`` и ``ENTRYPOINT``. ``RUN`` создаёт статичный слой, изменения внутри которого записываются в образ, но ничего не вызывают, ``CMD`` и ``ENTRYPOINT`` запускают что-либо, но НЕ ЗАПИСЫВАЮТ изменений в образ. Потому не стоит выполнять ими скрипты, результат которых нужно "положить" в конечный образ или раздел. Для этого есть ``RUN``.
+It is not possible to run an application directly from ``RUN``. In some cases this can be done through a script, but in general the ``CMD`` and ``ENTRYPOINT`` instructions are used to run it. ``RUN`` creates a static layer, changes inside which are written to the image, but do not cause anything, ``CMD`` and ``ENTRYPOINT`` run something, but DO NOT write changes to the image. Therefore, you should not execute scripts with them, the result of which must be “put” into the final image or partition. There is ``RUN`` for this.
 
-Можно сказать, что сделанные через ``RUN`` изменения статичны. Например, установка пакетов в системе обычно делается так:
+We can say that changes made through ``RUN`` are static. For example, installing packages on a system is usually done like this:
 
-```RUN	apk update && apk upgrade && apk add --no-cache nginx```
+```RUN apk update && apk upgrade && apk add --no-cache nginx```
 
-Здесь мы говорим файловому менеджеру apk чтобы он обновил список своих репозиториев в поисках последних версий софта (apk update), обновил устаревшие пакеты в нашем окружении (apk upgrade) и установил nginx не сохраняя исходники в кэше (apk add --no-cache nginx). Работает почти так же, как ```apt``` в debian.
+Here we tell the apk file manager to update the list of its repositories in search of the latest software versions (apk update), update outdated packages in our environment (apk upgrade) and install nginx without saving the sources in the cache (apk add --no-cache nginx) . Works almost exactly like ```apt``` in debian.
 
-Затем нам нужно открыть порт, по которому контейнер будет обмениваться трафиком:
+Then we need to open the port on which the container will exchange traffic:
 
 ```EXPOSE 443```
 
-В конце концов мы должны запустить установленную конфигурацию. Для этого используем инструкцию ```CMD```:
+In the end we have to run the installed configuration. To do this, use the ```CMD``` instruction:
 
 ```CMD ["nginx", "-g", "daemon off;"]```
 
-Таким образом мы запускаем nginx напрямую, а не в режиме демона. Режим демона же, это такой режим запуска, в котором приложение стартует в фоне или выражаясь языком windows, как служба. Для удобства отладки мы отключаем этот режим и получаем все логи nginx напрямую в tty контейнера.
+This way we run nginx directly and not in daemon mode. Daemon mode is a launch mode in which the application starts in the background or, in Windows parlance, as a service. For ease of debugging, we disable this mode and receive all nginx logs directly into the tty of the container.
 
 ```
 FROM alpine:3.16
-RUN	apk update && apk upgrade && apk add --no-cache nginx
+RUN apk update && apk upgrade && apk add --no-cache nginx
 EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
 ```
-Вот, собственно, и весь Dockerfile. Просто, не правда ли?
+Here, in fact, is the entire Dockerfile. Simple, isn't it?
 
-![установка nginx](media/stickers/easy.png)
+![nginx installation](media/stickers/easy.png)
 
-Сохраняем, закрываем.
+Save and close.
 
-## Шаг 3. Создание файла конфигурации
+## Step 3. Create a configuration file
 
-Естественно, наш nginx не заработает без конфигурационного файла. Напишем же его!
+Naturally, our nginx will not work without a configuration file. Let's write it!
 
-Посмотрев при помощи ```ls``` нашу папку с nginx-ом мы обнаружим в ней директории conf и tools. Стало быть, наша конфигурация должна лежать в папке conf, если мы нормальные белые люди (никакого расизма, просто расхожая фраза).
+Having looked at our folder with nginx using ```ls``` we will find the conf and tools directories in it. Therefore, our configuration should be in the conf folder if we are normal white people (no racism, just a common phrase).
 
-Создадим наш конфиг прямо отсюда:
+Let's create our config directly from here:
 
 ```nano conf/nginx.conf```
 
-Так как мы уже тренировались с тестовым контейнером, возьмём похожую конфигурацию, изменив её под php, чтобы она позволяла читать не html, а php файлы wordpress-а. Порт 80 нам больше не понадобится, так как по гайду мы можем использовать только порт 443. Но на первом этапе мы закомментируем секции, отвечающие за php, и пропишем на время поддержку html (для проверки):
+Since we have already trained with a test container, let’s take a similar configuration, changing it for php so that it allows reading not html, but php wordpress files. We will no longer need port 80, since according to the guide we can only use port 443. But at the first stage, we will comment out the sections responsible for php and temporarily add html support (for testing):
 ```
 server {
-    listen      443 ssl;
-    server_name  <your_nickname>.42.fr www.<your_nickname>.42.fr;
-    root    /var/www/;
-    index index.php index.html;
-    ssl_certificate     /etc/nginx/ssl/<your_nickname>.42.fr.crt;
-    ssl_certificate_key /etc/nginx/ssl/<your_nickname>.42.fr.key;
-    ssl_protocols       TLSv1.2 TLSv1.3;
-    ssl_session_timeout 10m;
-    keepalive_timeout 70;
-    location / {
-        try_files $uri /index.php?$args /index.html;
-        add_header Last-Modified $date_gmt;
-        add_header Cache-Control 'no-store, no-cache';
-        if_modified_since off;
-        expires off;
-        etag off;
-    }
-#    location ~ \.php$ {
-#        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-#        fastcgi_pass wordpress:9000;
-#        fastcgi_index index.php;
-#        include fastcgi_params;
-#        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#        fastcgi_param PATH_INFO $fastcgi_path_info;
-#    }
+listen 443 ssl;
+server_name <your_nickname>.42.fr www.<your_nickname>.42.fr;
+root /var/www/;
+index index.php index.html;
+ssl_certificate /etc/nginx/ssl/<your_nickname>.42.fr.crt;
+ssl_certificate_key /etc/nginx/ssl/<your_nickname>.42.fr.key;
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_session_timeout 10m;
+keepalive_timeout 70;
+location/{
+try_files $uri /index.php?$args /index.html;
+add_header Last-Modified $date_gmt;
+add_header Cache-Control 'no-store, no-cache';
+if_modified_since off;
+expires off;
+etag off;
+}
+# location ~ \.php$ {
+# fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#fastcgi_pass wordpress:9000;
+# fastcgi_index index.php;
+# include fastcgi_params;
+# fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+# fastcgi_param PATH_INFO $fastcgi_path_info;
+# }
 }
 ```
 
-Порт 9000 - это как раз порт нашего php-fpm, по которому осуществляется соединение между php и nginx. А wordpress в данном случае - имя нашего контейнера с wordpress-ом. Но пока попытаемся хотя бы просто запустить что-то на nginx-е.
+Port 9000 is exactly the port of our php-fpm, through which the connection between php and nginx is made. And wordpress in this case is the name of our container with wordpress. But for now, let’s at least try to just run something on nginx.
 
-Просто копипастим это в наш проект и сохраняем файл.
+We just copy-paste this into our project and save the file.
 
-А папку tools я использую для ключей, скопировав их туда:
+And I use the tools folder for keys, copying them there:
 
 ```cp ~/project/srcs/requirements/tools/* ~/project/srcs/requirements/nginx/tools/```
 
-![установка nginx](media/stickers/understand.png)
+![nginx installation](media/stickers/understand.png)
 
-## Шаг 4. Создание конфигурации docker-compose
+## Step 4: Create docker-compose configuration
 
-Docker-compose - это система запуска контейнеров docker, можно сказать, это некая надстройка над docker. Если в docker-файлах мы прописывали, какой софт установить внутри одного контейнерного окружения, то с docker-compose мы можем управлять запуском сразу множества подобных контейнеров, запуская их одной командой.
+Docker-compose is a system for launching Docker containers; one might say, it is a kind of add-on to Docker. If in docker files we specified what software to install inside one container environment, then with docker-compose we can control the launch of many similar containers at once, launching them with one command.
 
-Для этого переходим на два уровня выше (``../../``) и правим наш уже созданный docker-compose файл:
+To do this, go two levels higher (``../../``) and edit our already created docker-compose file:
 
 ```cd ../../ && nano docker-compose.yml```
 
-Сначала прописываем версию. Последняя версия - третья.
+First we register the version. The latest version is the third.
 
 ```
 version: '3'
 
 services:
-  nginx:
+nginx:
 ```
 
-Первым в списке наших сервисов будет nginx. Ставим два пробела и прописываем это слово.
+The first on the list of our services will be nginx. Put two spaces and write this word.
 
-Далее мы говорим докеру, где лежит наш Dockerfile:
-
-```
-version: '3'
-
-services:
-  nginx:
-    build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
-```
-
-Задаём имя нашему контейнеру, а так же пробрасываем нужный порт (в этом задании мы можем использовать только ssl).
-
-Так же пропишем зависимость, пока закомментировав её. Нам нужно, чтобы nginx стартовал после wordpress-а, подхватывая его сборку. Но nginx собирается быстрее, и  во избежании коллизий нам необходимо чтобы он подождал сборки контейнера с wordpress и запустился только после него. Пока для тестов закомментируем это.
+Next, we tell the docker where our Dockerfile is:
 
 ```
 version: '3'
 
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
-    container_name: nginx
-#    depends_on:
-#      - wordpress
-    ports:
-      - "443:443"
+nginx:
+build:
+context: .
+dockerfile: requirements/nginx/Dockerfile
 ```
 
-Добавляем разделы, чтобы контейнер увидел наш конфиг и наши ключи, а так же обязательно монтируем наш /var/www - ту самую папку из старой конфигурации, которая понадобится нам для пробного запуска nginx. Позже мы удалим её и будем брать файлы из каталога wordpress-а.
+We set a name for our container, and also forward the required port (in this task we can only use ssl).
+
+Let’s also write down the dependency, commenting it out for now. We need nginx to start after WordPress, picking up its build. But nginx is built faster, and to avoid collisions, we need it to wait for the WordPress container to be built and start only after it. For now, let's comment this out for testing purposes.
 
 ```
 version: '3'
 
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
-    container_name: nginx
-#    depends_on:
-#      - wordpress
-    ports:
-      - "443:443"
-    volumes:
-      - ./requirements/nginx/conf/:/etc/nginx/http.d/
-      - ./requirements/nginx/tools:/etc/nginx/ssl/
-      - /home/${USER}/simple_docker_nginx_html/public/html:/var/www/
+nginx:
+build:
+context: .
+dockerfile: requirements/nginx/Dockerfile
+container_name: nginx
+#depends_on:
+# - wordpress
+ports:
+- "443:443"
 ```
 
-Дальше мы прописываем тип перезапуска. В боевых проектах лично я использую тип restart: unless-stopped (перезапускать всегда, за исключением команды остановки), но сабжем он запрещён, потому выставляем разрешённый:
-
-```
-    restart: always
-```
-
-...что значит перезапускать в любом случае.
-
-И таким образом мы имеем следующую конфигурацию:
+We add sections so that the container can see our config and our keys, and we also make sure to mount our /var/www - the same folder from the old configuration that we will need for a test run of nginx. Later we will delete it and take files from the WordPress directory.
 
 ```
 version: '3'
 
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
-    container_name: nginx
-#    depends_on:
-#      - wordpress
-    ports:
-      - "443:443"
-    volumes:
-      - ./requirements/nginx/conf/:/etc/nginx/http.d/
-      - ./requirements/nginx/tools:/etc/nginx/ssl/
-      - /home/${USER}/simple_docker_nginx_html/public/html:/var/www/
-    restart: always
+nginx:
+build:
+context: .
+dockerfile: requirements/nginx/Dockerfile
+container_name: nginx
+#depends_on:
+# - wordpress
+ports:
+- "443:443"
+volumes:
+- ./requirements/nginx/conf/:/etc/nginx/http.d/
+- ./requirements/nginx/tools:/etc/nginx/ssl/
+- /home/${USER}/simple_docker_nginx_html/public/html:/var/www/
 ```
 
-Не забываем выключить тестовую конфигурацию:
+Next we specify the type of restart. In combat projects, I personally use the restart type: unless-stopped (always restart, except for the stop command), but the subject prohibits it, so we set it to allowed:
+
+```
+restart: always
+```
+
+...which means restart anyway.
+
+And thus we have the following configuration:
+
+```
+version: '3'
+
+services:
+nginx:
+build:
+context: .
+dockerfile: requirements/nginx/Dockerfile
+container_name: nginx
+#depends_on:
+# - wordpress
+ports:
+- "443:443"
+volumes:
+- ./requirements/nginx/conf/:/etc/nginx/http.d/
+- ./requirements/nginx/tools:/etc/nginx/ssl/
+- /home/${USER}/simple_docker_nginx_html/public/html:/var/www/
+restart: always
+```
+
+Don't forget to turn off the test configuration:
 
 ```cd ~/simple_docker_nginx_html/```
 
 ```docker-compose down```
 
-И запускаем нашу новую конфигурацию:
+And we launch our new configuration:
 
 ```cd ~/project/srcs/```
 
 ```docker-compose up -d```
 
-Так как мы используем 443 порт, а он поддерживает только https-пртоткол, мы обратимся к адресу по https:
+Since we are using port 443, and it only supports the https protocol, we will access the address using https:
 
-```https://127.0.0.1``` в браузере
+```https://127.0.0.1``` in the browser
 
-```https://<your_nickname>.42.fr``` в GUI
+```https://<your_nickname>.42.fr``` in GUI
 
-И теперь, если мы обратимся к локальному хосту из браузера, мы получим рабочую конфигурацию:
+And now if we access localhost from the browser, we get a working configuration:
 
-![рабочий nginx](media/install_certificate/step_10.png)
+![working nginx](media/install_certificate/step_10.png)
 
-Путём лёгкой замены нескольких значений docker-compose и раскомментирования файла конфигурации мы получим рабочий nginx, поддерживающий tls и работающий с wordpress. Но это будет дальше.
+By simply replacing a few docker-compose values ​​and uncommenting the configuration file, we will get a working nginx that supports tls and works with wordpress. But that will come later.
 
-А пока делаем снапшоты, сохраняемся в облако, наливаем приятную для организма жидкость и наслаждаемся жизнью. На то мы и devops-инженеры :)
+In the meantime, we take snapshots, save to the cloud, pour in a liquid that is pleasant for the body and enjoy life. That's why we are devops engineers :)
 
-![настройка vsftpd](media/stickers/drink.png)
+![vsftpd settings](media/stickers/drink.png)

@@ -1,75 +1,75 @@
-# Проброс портов в виртуальной системе
+# Port forwarding in a virtual system
 
-## Шаг 1. Настройка конфигурации ssh
+## Step 1: Set up ssh configuration
 
-Логинимся под суперпользователем и открываем файл ```/etc/ssh/sshd_config```
+Login as superuser and open the file ```/etc/ssh/sshd_config```
 
-![редактирование конфига ssh](media/ports_forwarding/step_0.png)
+![edit ssh config](media/ports_forwarding/step_0.png)
 
-Всё, что происходит далее - это небезопасные настройки для виртуальной гостевой системы, не повторяйте на vps-серверах!
+Everything that happens next is unsafe settings for the virtual guest system, do not repeat it on vps servers!
 
-Меняем порт на 42-й (на школьном маке, например, 22-й уже занят ssh хостовой машины и подключиться по нему не получится) и разрешаем логиниться под суперпользователем 
+We change the port to 42 (on a school Mac, for example, 22 is already occupied by the ssh of the host machine and you won’t be able to connect via it) and allow logging in as a superuser
 
-![редоктирование конфига ssh](media/ports_forwarding/step_1.png)
+![editing ssh config](media/ports_forwarding/step_1.png)
 
-Отключаем вход по ключу (в целом необязательно, но я сделал) и подтверждаем вход по паролю:
+Disable login using a key (in general it’s not necessary, but I did) and confirm login using a password:
 
-![редактирование конфига ssh](media/ports_forwarding/step_2.png)
+![edit ssh config](media/ports_forwarding/step_2.png)
 
-После этого сохраняем конфигурацию и перезапускаем сервисы ssh и sshd (вообще достаточно sshd, но привычка делать для верности оба):
+After that, save the configuration and restart the ssh and sshd services (generally sshd is enough, but it’s a habit to do both to be sure):
 
-![перезапуск ssh](media/ports_forwarding/step_3.png)
+![restart ssh](media/ports_forwarding/step_3.png)
 
-## Шаг 2. Настройка файервола
+## Step 2. Configuring the firewall
 
-На шаге ```установка системы``` мы уже установили файервол ufw (точнее, ufw это надстройка над файерволом iptables, но в рамках нашей задачи мы не будем углубляться в эти технологии).
+At the ``system installation`` step we have already installed the ufw firewall (more precisely, ufw is an add-on to the iptables firewall, but for the purposes of our task we will not delve into these technologies).
 
-Далее нам нужно открыть в файерволе наш порт 42 для ssh, а так же порты 80 и 443 для веб-сайта.
+Next, we need to open our port 42 for ssh in the firewall, as well as ports 80 and 443 for the website.
 
-Сначала запускаем наш файервол командой ```ufw enable```, затем разрешаем каждый порт диективой ```ufw allow N```, где N - номер порта:
+First, we launch our firewall with the command ```ufw enable```, then we allow each port with the directive ```ufw allow N```, where N is the port number:
 
-![открытие портов](media/ports_forwarding/step_4.png)
+![opening ports](media/ports_forwarding/step_4.png)
 
-Открытые порты можно посмотреть при помощи команды ```ufw status```
+Open ports can be viewed using the command ```ufw status```
 
-На этом настройки в системе закончены, необходимо выключить виртуальную машину командой ```shutdown now```
+At this point, the settings in the system are completed; you need to shut down the virtual machine with the command ```shutdown now```
 
-Команда ```shutdown``` выключит сервер через минуту, поэтому используем именно ```shutdown now``` для мгновенного завершения:
+The ```shutdown``` command will shut down the server in a minute, so we use ```shutdown now``` to complete it instantly:
 
-![завершение работы](media/ports_forwarding/step_5.png)
+![shutdown](media/ports_forwarding/step_5.png)
 
-## Шаг 3. Проброс портов
+## Step 3. Port forwarding
 
-Мало открыть порты на гостевой машине, нужно ещё и перенаправить траффик с хостовой на гостевую. Траффик, идущий по определённым портам, необходимо перенаправлять путём проброса портов из гостевой машины в хостовую.
+It’s not enough to open ports on the guest machine; you also need to redirect traffic from the host to the guest. Traffic going through certain ports must be redirected by port forwarding from the guest machine to the host machine.
 
-В Virtualbox заходим в настройки -> сеть -> дополнительно -> проброс портов, и прописываем следующие правила:
+In Virtualbox, go to settings -> network -> advanced -> port forwarding, and set the following rules:
 
-![проброс портов](media/ports_forwarding/step_6.png)
+![port forwarding](media/ports_forwarding/step_6.png)
 
-## Шаг 4. Вход через терминал хостовой ОС
+## Step 4. Login via host OS terminal
 
-Во-первых нужно убедиться что на хостовой машине в ~/.ssh/known_hosts нету локальных записей (начинаются с [localhost]). Если такие строки есть и будут проблемы со входом, то их надо будет удалить.
+First, you need to make sure that there are no local entries (starting with [localhost]) on the host machine in ~/.ssh/known_hosts. If there are such lines and there are problems with logging in, then they will need to be deleted.
 
-После того, как мы пробросили порты, необходимо снова запустить виртуальную машину.
+After we have forwarded the ports, we need to start the virtual machine again.
 
-Логиниться не нужно, можно свернуть окно виртуальной машины и войти на наш сервер через терминал.
+There is no need to log in, you can minimize the virtual machine window and log into our server through the terminal.
 
-Для входа под суперпользователем:
+To log in as superuser:
 
 ```ssh root@localhost -p 42```
 
-Для входа под обычным пользователем используем созданное нами имя пользователя:
+To log in as a regular user, use the username we created:
 
 ```ssh <your_nickname>@localhost -p 42```
 
-Нажимаем yes чтобы принять настройки в known_hosts, вводим наш пароль и вуаля - мы на гостевой машине!
+Click yes to accept the settings in known_hosts, enter our password and voila - we are on the guest machine!
 
-![вход по ssh](media/ports_forwarding/step_7.png)
+![ssh login](media/ports_forwarding/step_7.png)
 
-Поздравляю, теперь мы можем копипастить команды в терминал, и они будут выполняться на нашем виртуальном сервере!
+Congratulations, now we can copy-paste commands into the terminal, and they will be executed on our virtual server!
 
-А это значит, что мы имеем возможность ускоренно скопипастить и развернуть наш проект!
+This means that we have the opportunity to quickly copy-paste and deploy our project!
 
-![установка системы](media/stickers/pasco.png)
+![system installation](media/stickers/pasco.png)
 
-Но это для тех пиров, кого поджимают дедлайны, остальным же лучше делать всё step by step для лучшего понимания принципов работы контейнеров. Контейнеры - полезнейшая штука, а умение грамотно контейнеризировать свой код даст каждому программмисту большие преимущества на рынке труда.
+But this is for those peers who are pressed by deadlines; for the rest, it is better to do everything step by step for a better understanding of the principles of operation of containers. Containers are a very useful thing, and the ability to competently containerize your code will give every programmer great advantages in the labor market.

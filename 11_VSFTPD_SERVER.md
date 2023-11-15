@@ -1,54 +1,54 @@
-# Файловый сервер vsftpd
+# File server vsftpd
 
-Итак, парни, как мы помним из pipex-а, файлы, наряду с процессами - это базовые абстракции linux.
+So, guys, as we remember from pipex, files, along with processes, are the basic abstractions of Linux.
 
-![настройка vsftpd](media/stickers/files.png)
+![vsftpd settings](media/stickers/files.png)
 
-В проекте inception же эти знания нам не пригодятся!
+In the inception project, this knowledge will not be useful to us!
 
-Давайте же будем радоваться тому, что нам не нужно погружаться в низкоуровневое программирование! Ведь всё, что нам сейчас нужно - это всего лишь написать контейнер, содержащий в себе файловый сервер для работы с разделом wordpress. А не эти ваши потоки ввода-вывода...
+Let's be happy that we don't have to dive into low-level programming! After all, all we need now is just to write a container containing a file server for working with the WordPress section. And not these I/O streams of yours...
 
-Мы установим в контейнере сервер vsftpd - Very Saveful File TransPort Daemon, или в переводе с буржуйского - очень защищённый транспортирующий файлы демон. По названию кажется, что выглядеть он должен вот так:
+We will install the vsftpd server in the container - Very Saveful File TransPort Daemon, or translated from bourgeois - a very secure daemon transporting files. Based on the name, it seems like it should look like this:
 
-![настройка vsftpd](media/bonus_part/deamon.jpeg)
+![vsftpd settings](media/bonus_part/deamon.jpeg)
 
-Однако на деле он выглядит так:
+However, in reality it looks like this:
 
-![настройка vsftpd](media/bonus_part/tux.png)
+![vsftpd settings](media/bonus_part/tux.png)
 
-У бедняги даже нет своего лого, потому фотошопят его обычно на фоне линуксового пингвина Tux-а.
+The poor fellow doesn’t even have his own logo, so they usually photoshop it against the background of a Linux penguin called Tux.
 
-## Шаг 1. Создание Dockerfile
+## Step 1: Create a Dockerfile
 
-Как обычно, начинаем с Dockerfile:
+As usual, we start with the Dockerfile:
 
 ``nano requirements/bonus/vsftpd/Dockerfile``
 
-В нём мы получим имя пользователя и пароль для нашего юзера ftp-сервера в переменных через ARG. Затем установим наш vsftpd. Нам нужно создать пользователя для подключения к серверу, и следующим слоем мы это сделаем. Домашним разделом установим для него /var/www, куда мы и примонтируем раздел с нашим wp. Не забудем добавить этого пользователя в группу root чтобы мы могли обрабатывать каталог wordpress-а (иначе просто не хватит прав).
+In it we will receive the username and password for our ftp server user in variables via ARG. Then we will install our vsftpd. We need to create a user to connect to the server, and with the next layer we will do this. We will set the home section to /var/www, where we will mount the section with our wp. Let’s not forget to add this user to the root group so that we can process the WordPress directory (otherwise we simply won’t have enough rights).
 
-После этого мы правильно настроим файл конфигурации - раскомментим нужные нам параметры и добавим отсутствующие. Корневой папкой сделаем /var/www, откроем 21-й порт и запустим нашего демона, скормив ему только что отконфигурированный файл vsftpd.conf:
+After this, we will correctly configure the configuration file - uncomment the parameters we need and add the missing ones. Let's make /var/www the root folder, open port 21 and launch our daemon, feeding it the newly configured vsftpd.conf file:
 
 ```
 FROM alpine:3.16
 
-ARG FTP_USR \
-    FTP_PWD
+ARG FTP_USR\
+FTP_PWD
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache vsftpd
+apk add --no-cache vsftpd
 
 RUN adduser -h /var/www -s /bin/false -D ${FTP_USR} && \
-    echo "${FTP_USR}:${FTP_PWD}" | /usr/sbin/chpasswd && \
-    adduser ${FTP_USR} root
+echo "${FTP_USR}:${FTP_PWD}" | /usr/sbin/chpasswd && \
+adduser ${FTP_USR} root
 
-RUN sed -i "s|#chroot_local_user=YES|chroot_local_user=YES|g"  /etc/vsftpd/vsftpd.conf && \
-    sed -i "s|#local_enable=YES|local_enable=YES|g"  /etc/vsftpd/vsftpd.conf && \
-    sed -i "s|#write_enable=YES|write_enable=YES|g"  /etc/vsftpd/vsftpd.conf && \
-    sed -i "s|#local_umask=022|local_umask=007|g"  /etc/vsftpd/vsftpd.conf
+RUN sed -i "s|#chroot_local_user=YES|chroot_local_user=YES|g" /etc/vsftpd/vsftpd.conf && \
+sed -i "s|#local_enable=YES|local_enable=YES|g" /etc/vsftpd/vsftpd.conf && \
+sed -i "s|#write_enable=YES|write_enable=YES|g" /etc/vsftpd/vsftpd.conf && \
+sed -i "s|#local_umask=022|local_umask=007|g" /etc/vsftpd/vsftpd.conf
 
 RUN echo "allow_writeable_chroot=YES" >> /etc/vsftpd/vsftpd.conf &&\
-    echo 'seccomp_sandbox=NO' >> /etc/vsftpd/vsftpd.conf && \
-    echo 'pasv_enable=YES' >> /etc/vsftpd/vsftpd.conf
+echo 'seccomp_sandbox=NO' >> /etc/vsftpd/vsftpd.conf && \
+echo 'pasv_enable=YES' >> /etc/vsftpd/vsftpd.conf
 
 WORKDIR /var/www
 
@@ -57,13 +57,13 @@ EXPOSE 21
 CMD [ "/usr/sbin/vsftpd", "/etc/vsftpd/vsftpd.conf" ]
 ```
 
-## Шаг 2. Кладём секреты в .env
+## Step 2. Put secrets in .env
 
-Открываем .env-файл:
+Open the .env file:
 
-``nano .env``
+``nano.env``
 
-Добавляем туда строки с именем пользователя и паролем. Таким образом весь файл будет выглядеть следующим образом:
+Add lines with username and password there. So the entire file will look like this:
 
 ```
 DOMAIN_NAME=jleslee.42.fr
@@ -77,66 +77,66 @@ FTP_USR=ftpuser
 FTP_PWD=ftppass
 ```
 
-Логин с паролем могут быть любыми.
+The login and password can be anything.
 
-## Шаг 3. Добавляем секцию в docker-compose
+## Step 3. Add a section to docker-compose
 
-Чтобы переменные из .env-а передались в Dockerfile нужно прописать их и в docker-compose. Секция нашего демона будет выглядеть так:
+In order for variables from .env to be transferred to the Dockerfile, you need to register them in docker-compose. Our daemon section will look like this:
 
 ```
-  vsftpd:
-    build:
-      context: .
-      dockerfile: requirements/bonus/vsftpd/Dockerfile
-      args:
-        FTP_USR: ${FTP_USR}
-        FTP_PWD: ${FTP_PWD}
-    container_name: vsftpd
-    ports:
-      - "21:21"
-    volumes:
-      - wp-volume:/var/www/
-    networks:
-     - inception
-    restart: always
+vsftpd:
+build:
+context: .
+dockerfile: requirements/bonus/vsftpd/Dockerfile
+args:
+FTP_USR: ${FTP_USR}
+FTP_PWD: ${FTP_PWD}
+container_name: vsftpd
+ports:
+- "21:21"
+volumes:
+- wp-volume:/var/www/
+networks:
+- inception
+restart: always
 ```
 
-На этом этап настройки закончен, переходим к проверке.
+At this point the setup stage is complete, let's move on to testing.
 
-## Шаг 4. Проверка работы vsftpd
+## Step 4. Verify that vsftpd is working
 
-Для проверки нам нужен ftp-клиент. Если мы хотим подключиться к контейнеру извне, придётся ещё и пробросить вовне порт с номером нашей школы (*на правах рекламы):
+To check we need an ftp client. If we want to connect to the container from the outside, we will also have to forward a port with our school number to the outside (*for advertising purposes):
 
-![настройка vsftpd](media/bonus_part/step_9.png)
+![vsftpd settings](media/bonus_part/step_9.png)
 
-Однако мы "бедные студенты" школы-21 и на наших маках нет даже набора софта первой необходимости вроде postman или filezilla. По крайней мере они есть далеко не на всех компах. Поэтому нам не придётся работать на маке с этим портом вовне, для проверки мы установим ftp-клиент внутри виртуальной машины. Пробрасывать 21-й порт имеет смысл на домашнем ПК/Ноутбуке, где можно установить filezilla.
+However, we are “poor students” of school-21 and our Macs don’t even have a set of essential software like postman or filezilla. At least not all computers have them. Therefore, we will not have to work on a Mac with this port externally; to check, we will install an ftp client inside the virtual machine. It makes sense to forward port 21 on a home PC/Laptop where you can install filezilla.
 
-А вот порт 9443 и 8080 нам пригодится в следующих гайдах для таких классных вещей как portainer и adminer. 
+But port 9443 and 8080 will be useful to us in the following guides for such cool things as portainer and adminer.
 
-Portainer это функциональный дашборд, предоставляющий удобную графическую среду для управления контейнерами. Adminer - лёгкая графическая среда для администрирования баз данных.
+Portainer is a functional dashboard that provides a convenient graphical environment for managing containers. Adminer is a lightweight graphical environment for database administration.
 
-Раз уж мы зашли в проброс портов, надо открыть эти порты на будущее! И не забыть открыть порты в файерволле:
+Since we are already into port forwarding, we need to open these ports for the future! And don’t forget to open the ports in the firewall:
 
-![настройка vsftpd](media/bonus_part/step_19.png)
+![vsftpd settings](media/bonus_part/step_19.png)
 
-Так как filezilla я буду запускать внутри виртуальной машины, то порт 21 я не открываю вовне.
+Since I will run filezilla inside a virtual machine, I do not open port 21 externally.
 
-А теперь возвращаемся в терминал и устанавливаем в виртуалке ftp-клиент filezilla:
+Now let’s return to the terminal and install the filezilla ftp client in the virtual machine:
 
 ``sudo apt install -y filezilla``
 
-Пока наш filezilla устанавливается, заходим в окно virtualbox-а с нашей запущенной системой. Логинимся там и запускаем графику:
+While our filezilla is being installed, we go into the virtualbox window with our running system. Log in there and launch the graphics:
 
 ``sudo startx``
 
-В openbox наш ftp-клиент после установки будет доступен во вкладке internet:
+In openbox, after installation, our ftp client will be available in the internet tab:
 
-![настройка vsftpd](media/bonus_part/step_10.png)
+![vsftpd settings](media/bonus_part/step_10.png)
 
-Запускаем и логинимся в нём по локальному хосту (127.0.0.1), вводя прописанные в .env-файле логин с паролем, выбрав тот самый 21-й порт:
+We launch and log in to it on the local host (127.0.0.1), entering the login and password specified in the .env file, selecting the same 21st port:
 
-![настройка vsftpd](media/bonus_part/step_11.png)
+![vsftpd settings](media/bonus_part/step_11.png)
 
-Ура, мы зашли в наш раздел wp-volume по ssh! Можем потыкаться там, посоздавать папки и файлы, поудалять что-нибудь не очень нужное, сломать проект и пересобрать его снова - docker-compose предоставляет нам эту замечательную возможность!
+Hurray, we have accessed our wp-volume section via ssh! We can poke around there, create folders and files, delete something not really necessary, break the project and rebuild it again - docker-compose gives us this wonderful opportunity!
 
-Итак, слава демонам, доступ по FTP у нас настроен. Переходим к настройки СУБД - системы управления базой данных. О ней - в следующем гайде.
+So, thank the demons, we have FTP access configured. Let's move on to setting up the DBMS - database management system. About it - in the next guide.

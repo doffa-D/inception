@@ -1,11 +1,10 @@
-FROM alpine:3.16
+FROM debian:bookworm
 
-RUN apk update && apk upgrade && \
-    apk add --no-cache redis && \
-    sed -i "s|bind 127.0.0.1|#bind 127.0.0.1|g"  /etc/redis.conf && \
-    sed -i "s|# maxmemory <bytes>|maxmemory 20mb|g"  /etc/redis.conf && \
-    echo "maxmemory-policy allkeys-lru" >> /etc/redis.conf
+RUN apt-get update && apt-get install -y redis-server php-redis && \
+    sed -i 's|bind 127.0.0.1|bind 0.0.0.0|g' /etc/redis/redis.conf
 
 EXPOSE 6379
 
-CMD [ "redis-server" , "/etc/redis.conf" ]
+#"redis-server" is a command that starts the Redis server
+#"--protected-mode no" which is a security feature that prevents Redis from accepting external connections by default
+CMD ["redis-server","--protected-mode no"]

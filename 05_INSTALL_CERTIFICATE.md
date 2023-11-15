@@ -1,226 +1,226 @@
-# Смена локального домена и установка сертификатов
+# Changing the local domain and installing certificates
 
-## Шаг 1. Установка mkcert
+## Step 1. Install mkcert
 
-По заданию нам необходимо установить сампоподписной ssl-сертификат и работать на порту 443, а так же изменить имя нашего домена на username.42.fr. Начнём с сампоподписного сертификата.
+According to the assignment, we need to install a self-signed SSL certificate and work on port 443, and also change our domain name to username.42.fr. Let's start with a self-signed certificate.
 
-Те вещи, которые я расскажу в этом гайде, многим неизвестны. Но при локальной разработке на linux, особенно в сфере web, они будут крайне полезны.
+The things that I will tell you in this guide are unknown to many. But for local development on Linux, especially in the web field, they will be extremely useful.
 
-![установка системы](media/stickers/ensign.png)
+![system installation](media/stickers/ensign.png)
 
-Для локальной разработки как правило используются самоподписные сертификаты. А для генерации самоподписного сертификата очень удобно использовать утилиту mkcert.
+For local development, self-signed certificates are typically used. And to generate a self-signed certificate, it is very convenient to use the mkcert utility.
 
-Логинимся по ssh под нашим обычным пользователем и выполняем следующие команды:
+We log in via ssh as our regular user and execute the following commands:
 
-Обновляем список репозиториев:
+Update the list of repositories:
 
 ```sudo apt update -y```
 
-Устанавливаем утиллиты, которые помогут нам загрузить mkcert:
+We install utilities that will help us download mkcert:
 
 ```sudo apt install -y wget curl libnss3-tools```
 
-Загружаем бинарник mkcert:
+Download the mkcert binary:
 
-```curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest| grep browser_download_url  | grep linux-amd64 | cut -d '"' -f 4 | wget -qi -```
+```curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest| grep browser_download_url | grep linux-amd64 | cut -d '"' -f 4 | wget -qi -```
 
-Переименовываем загруженный файл:
+Rename the downloaded file:
 
 ```mv mkcert-v*-linux-amd64 mkcert```
 
-Разрешаем всем пользователям исполнение файла:
+Allow all users to execute the file:
 
 ```chmod a+x mkcert```
 
-И наконец перемещаем mkcert в рабочую директорию:
+And finally we move mkcert to the working directory:
 
 ```sudo mv mkcert /usr/local/bin/```
 
-Проверяем, что всё работает, запросив версию mkcert:
+We check that everything works by requesting the mkcert version:
 
 ```mkcert --version```
 
-Видим следующий вывод:
+We see the following output:
 
-![установка сертификата](media/install_certificate/step_0.png)
+![certificate installation](media/install_certificate/step_0.png)
 
-## Шаг 2. Смена локального домена
+## Step 2. Change local domain
 
-Далее нам необходимо сменить алиас нашего локального домена (127.0.0.1) на нужный нам nickname.42.fr. Открываем файл /etc/hosts:
+Next, we need to change the alias of our local domain (127.0.0.1) to the desired nickname.42.fr. Open the /etc/hosts file:
 
 ```sudo nano /etc/hosts```
 
-И добавляем к ```localhost``` наш ник.42.fr, в моём случае это ```jleslee.42.fr``` (порядок не важен):
+And add our nickname.42.fr to ```localhost```, in my case it is ```jleslee.42.fr``` (the order is not important):
 
-![установка сертификата](media/install_certificate/step_1.png)
+![certificate installation](media/install_certificate/step_1.png)
 
-Для проверки работы домена мы можем снова запустить наш тестовый контейнер:
+To test the domain's functionality, we can run our test container again:
 
 ```cd ~/simple_docker_nginx_html/ && docker-compose up -d```
 
-Теперь выполняем следующую команду:
+Now run the following command:
 
 ```sudo startx```
 
-Эта команда запустить x-server, который необходим для отрисовки графического окружения (GUI). Мы увидим следующий вывод:
+This command starts x-server, which is necessary for rendering the graphical environment (GUI). We will see the following output:
 
-![установка сертификата](media/install_certificate/step_11.png)
+![certificate installation](media/install_certificate/step_11.png)
 
-Как видим по данным логам, наша графика успешно запустилась, но... Мы её не увидим. Всё потому, что терминал общается с пользователями при помощи текста и не предназначен для отрисовки графики. Не зря терминальный интерфейс называется TTY (ти-ти-уай) от английского Teletype Writer, одно из названий печатной машинки. Это как бы намекает нам на то, что терминал предназначен только для текста, а стало быть, сделал всё что мог - вывел нам лог об успешном запуске графического окружения.
+As we can see from these logs, our graphics launched successfully, but... We won’t see it. This is because the terminal communicates with users using text and is not intended for rendering graphics. It’s not for nothing that the terminal interface is called TTY (tee-tee-wye) from the English Teletype Writer, one of the names of a typewriter. This kind of hints to us that the terminal is intended only for text, and therefore, it did everything it could - it gave us a log about the successful launch of the graphical environment.
 
-Графика же запустилась в окошке запущенной в virtualbox системы, и мы можем использовать её только там.
+The graphics launched in the window of the system running in virtualbox, and we can only use it there.
 
-Однако если мы завершим сессию "иксов" в терминале, нажав ```Ctrl + C```, то и графика в виртуалке сразу же упадёт. Ну а если мы уже были залогинены в GUI, то по команде из терминала сверху первой графической сессии запуститься вторая, по выходу на ```Ctrl + C``` она упадёт, оставив включённой первую.
+However, if we end the “X” session in the terminal by pressing ```Ctrl + C```, then the graphics in the virtual machine will immediately drop. Well, if we were already logged into the GUI, then by command from the terminal on top of the first graphical session, the second one will be launched, and upon exiting to ```Ctrl + C``` it will drop, leaving the first one enabled.
 
-Так работает xserver, в народе "иксы" - если он запущен в терминале, надо открывать окно системы в virtualbox и работать в ней. А ещё проще залогиниться и запустить графику с браузером в virtualbox, а команды выполнять в терминале.
+This is how xserver, popularly “X”, works - if it is launched in the terminal, you need to open a system window in virtualbox and work in it. It’s even easier to log in and launch graphics with a browser in virtualbox, and execute commands in the terminal.
 
-Перейдём в наше графическое окружение в окне virtualbox. Включив веб-браузер, вбиваем туда адрес http://<your_nickname>.42.fr/ заменив <your_nickname> на свой ник. Результат должен быть следующим:
+Let's go to our graphical environment in the virtualbox window. Having turned on the web browser, enter the address http://<your_nickname>.42.fr/ into it, replacing <your_nickname> with your nickname. The result should be as follows:
 
-![установка сертификата](media/install_certificate/step_2.png)
+![certificate installation](media/install_certificate/step_2.png)
 
-Как мы видим, локальный домен у нас есть, а вот сертификат отсутствует.
+As we can see, we have a local domain, but there is no certificate.
 
-## Шаг 3. Получение сертификата
+## Step 3. Obtaining a certificate
 
-Свернём нашу графическую оболочку и снова откроем териминал. Теперь нам предстоит получить наш самоподписной сертификат.
+Let's minimize our graphical shell and open the terminal again. Now we have to get our self-signed certificate.
 
-Положим сертификат и ключ в папку project/srcs/requirements/tools/ (не зря же по заданию нам дана эта папка). Для начала перейдём туда:
+Let’s put the certificate and key in the project/srcs/requirements/tools/ folder (it’s not for nothing that we were given this folder according to the assignment). First, let's go there:
 
 ```cd ~/project/srcs/requirements/tools/```
 
-Для получения сертификата мы испольузем наш mkcert. Вот так я сгенерирую сертификат для своего домен <your_nickname>.42.fr: 
+To obtain the certificate we will use our mkcert. This is how I will generate a certificate for my domain <your_nickname>.42.fr:
 
 ```mkcert <your_nickname>.42.fr```
 
-Получилось следующее:
+The result is the following:
 
-![установка сертификата](media/install_certificate/step_3.png)
+![certificate installation](media/install_certificate/step_3.png)
 
-Как видим, наш сертификат действует более двух лет, и это хорошо.
+As you can see, our certificate is valid for more than two years, and this is good.
 
-Единственное, что нужно нам для полного счастья - поменять расширения файлов, чтобы сервер nginx их правильно читал. Используем mv, не забывая сменить <your_nickname> на свой ник:
+The only thing we need for complete happiness is to change the file extensions so that the nginx server reads them correctly. We use mv, not forgetting to change <your_nickname> to your nickname:
 
 ```mv <your_nickname>.42.fr-key.pem <your_nickname>.42.fr.key```
 
 ```mv <your_nickname>.42.fr.pem <your_nickname>.42.fr.crt```
 
-И мы имеем в итоге ключ с сертификатом нужных нам форматов.
+And we end up with a key with a certificate in the formats we need.
 
-## Шаг 4. Перенастройка контейнера для https
+## Step 4. Reconfiguring the container for https
 
-Теперь нам нужно изменить настройки nginx и тестового проекта чтобы проверить работу https.
+Now we need to change the settings of nginx and the test project to test the operation of https.
 
-Изменим настройки конфига nginx, который лежит по адресу ~/simple_docker_nginx_html/nginx/conf.d/nginx.conf:
+Let's change the settings of the nginx config, which is located at ~/simple_docker_nginx_html/nginx/conf.d/nginx.conf:
 
 ```nano ~/simple_docker_nginx_html/nginx/conf.d/nginx.conf```
 
-Стираем всё содержимое файла и копируем туда следующий код:
+We erase the entire contents of the file and copy the following code there:
 
 ```
 server {
-    # Слушаем порт http
-    listen      80;
-    # Слушаем порт https - ssl
-    listen      443 ssl;
-    # Задаём домен, на котором мы будем работать:
-    server_name  <your_nickname>.42.fr www.<your_nickname>.42.fr;
-    # Указываем корневую директорию проекта:
-    root    /var/www/public/html;
-    # Следующая секция закомментирована для
-    # нормальной работы с хостовой машины.
-    # Делаем перенаправление с http на https:
-    #if ($scheme = 'http') {
-    #    return 301 https://<your_nickname>.42.fr$request_uri;
-    #}
-    # Указываем путь к сертификату и ключу:
-    ssl_certificate     /etc/nginx/ssl/<your_nickname>.42.fr.crt;
-    ssl_certificate_key /etc/nginx/ssl/<your_nickname>.42.fr.key;
-    # Указываем поддерживаемые протоколы tls:
-    ssl_protocols            TLSv1.2 TLSv1.3;
-    # Указываем опции кэширования и таймауты:
-    ssl_session_timeout 10m;
-    keepalive_timeout 70;
-    # Говорим серверу, файл с каким расширением
-    # нужно искать в нашей корневой папке (root)
-    location / {
-        try_files $uri /index.html;
-    }
+# Listen to http port
+listen 80;
+# Listen to port https - ssl
+listen 443 ssl;
+# Set the domain on which we will work:
+server_name <your_nickname>.42.fr www.<your_nickname>.42.fr;
+# Specify the root directory of the project:
+root /var/www/public/html;
+# The following section is commented out for
+# normal operation from the host machine.
+# We redirect from http to https:
+#if ($scheme = 'http') {
+# return 301 https://<your_nickname>.42.fr$request_uri;
+#}
+# Specify the path to the certificate and key:
+ssl_certificate /etc/nginx/ssl/<your_nickname>.42.fr.crt;
+ssl_certificate_key /etc/nginx/ssl/<your_nickname>.42.fr.key;
+# Specify supported tls protocols:
+ssl_protocols TLSv1.2 TLSv1.3;
+# Specify caching options and timeouts:
+ssl_session_timeout 10m;
+keepalive_timeout 70;
+# Tell the server what file extension it has
+# need to look in our root folder (root)
+location/{
+try_files $uri /index.html;
+}
 }
 ```
 
-Мы можем убедиться, что кириллические комментарии после копипаста сохраняются в неверной кодировки, однако на работу нашего проекта это никак не повлияет:
+We can make sure that Cyrillic comments after copy-paste are saved in the wrong encoding, but this will not affect the work of our project in any way:
 
-![установка сертификата](media/install_certificate/step_4.png)
+![certificate installation](media/install_certificate/step_4.png)
 
-Обязательно поменяем в пяти местах <your_nickname> на свой ник! Теперь нам нужно перейти в папку тестового проекта и остановить контейнер:
+We will definitely change <your_nickname> to your nickname in five places! Now we need to go to the test project folder and stop the container:
 
 ```cd ~/simple_docker_nginx_html/ && docker-compose down```
 
-Затем открываем наш docker-compose.yml:
+Then we open our docker-compose.yml:
 
 ```nano docker-compose.yml```
 
-В раздел volumes добавляем ещё один раздел с нашими ключами:
+In the volumes section we add another section with our keys:
 
-```- /home/${USER}/project/srcs/requirements/tools:/etc/nginx/ssl```, где ${USER} - переменная, которая подставит сюда имя нашего пользователя из окружения $PATH.
+```- /home/${USER}/project/srcs/requirements/tools:/etc/nginx/ssl```, where ${USER} is a variable that will substitute our user name from the $PATH environment here.
 
-В общем, позаботимся о том, чтобы пути к сертификатам были прописаны правильно, а так же откроем порт 443 в разделе ports:
+In general, we’ll make sure that the paths to the certificates are written correctly, and we’ll also open port 443 in the ports section:
 
 ```
 version: '3'
 
 services:
-  nginx:
-    image: nginx:stable-alpine
-    volumes:
-      - ./public:/var/www/public/
-      - ./nginx/conf.d:/etc/nginx/conf.d/
-      - /home/${USER}/project/srcs/requirements/tools:/etc/nginx/ssl/
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    container_name: simple_nginx_html
+nginx:
+image: nginx:stable-alpine
+volumes:
+- ./public:/var/www/public/
+- ./nginx/conf.d:/etc/nginx/conf.d/
+- /home/${USER}/project/srcs/requirements/tools:/etc/nginx/ssl/
+restart: unless-stopped
+ports:
+- "80:80"
+- "443:443"
+container_name: simple_nginx_html
 ```
 
-![установка сертификата](media/install_certificate/step_5.png)
+![certificate installation](media/install_certificate/step_5.png)
 
-## Шаг 5. Запуск проекта по https в GUI
+## Step 5. Launching the project via https in the GUI
 
-Теперь вновь запустим наш докер командой
+Now let’s launch our docker again with the command
 
 ```docker-compose up -d```
 
-Залогинимся в окне системы, запустим там наши "иксы" и перейдём в GUI сервера. Обновим страницу браузера и увидим, что браузер, увы, не доверяет нашему самоподписному сертификату:
+Let's log in to the system window, launch our X's there and go to the server GUI. Let's refresh the browser page and see that the browser, alas, does not trust our self-signed certificate:
 
-![установка сертификата](media/install_certificate/step_6.png)
+![certificate installation](media/install_certificate/step_6.png)
 
-![установка nginx](media/stickers/savefull.png)
+![nginx installation](media/stickers/savefull.png)
 
-К сожалению, это максимум чего мы можем добиться. Самоподписной сертификат не является доверенным, так как сертификаты выдаются специальными центрами сертификации. Всё, что мы можем - это нажать кнопку "Дополнительно" (Advanced), затем промотать страницу ниже и нажать "Принять риск и продолжить" (Accept the risk and contine):
+Unfortunately, this is the most we can achieve. A self-signed certificate is not trusted because certificates are issued by special certification authorities. All we can do is click the “Advanced” button, then scroll down the page and click “Accept the risk and continue”:
 
-![установка сертификата](media/install_certificate/step_7.png)
+![certificate installation](media/install_certificate/step_7.png)
 
-Теперь наш браузер доверяет созданному нами сертификату и наш сайт загружается по ssl. Однако соединение всё равно не считается безопасным. Браузер нужно понять и простить, а нам как веб-разработчику этого вполне хватит для нашего проекта.
+Now our browser trusts the certificate we created and our site loads via ssl. However, the connection is still not considered secure. The browser needs to be understood and forgiven, and for us as a web developer this is quite enough for our project.
 
-![установка сертификата](media/install_certificate/step_8.png)
+![certificate installation](media/install_certificate/step_8.png)
 
-## Шаг 6. Запуск проекта по https на хосте
+## Step 6. Launching the project via https on the host
 
-На хостовой машине наш проект будет доступен по адресу ```127.0.0.1``` до тех пор, пока секция редиректов в конфиге nginx закомментирована. Если раскомментировать её, нас будет редиректить на наш 42.fr, а школьный мак не знает такого сайта.
+On the host machine, our project will be available at ```127.0.0.1``` as long as the redirect section in the nginx config is commented out. If we uncomment it, we will be redirected to our 42.fr, and the school poppy does not know such a site.
 
-Здесь тоже будут жалобы на самоподписной ssl. Понять, простить, наджать "дополнительно" -> "перейти на сайт".
+There will also be complaints about self-signed ssl. Understand, forgive, click “additional” -> “go to site”.
 
-![установка сертификата](media/install_certificate/step_9.png)
+![certificate installation](media/install_certificate/step_9.png)
 
-Мы увидим уже привычный "небезопасный" https:
+We will see the already familiar “unsecure” https:
 
-![установка сертификата](media/install_certificate/step_10.png)
+![certificate installation](media/install_certificate/step_10.png)
 
-На этом мы можем выключать контейнер командой
+At this point we can turn off the container with the command
 
 ```docker-compose down```
 
-![настройка vsftpd](media/stickers/gone.png)
+![vsftpd settings](media/stickers/gone.png)
 
-и переходить к созданию Makefile!
+and move on to creating a Makefile!

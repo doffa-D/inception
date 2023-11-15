@@ -1,190 +1,190 @@
-# Создание Makefile
+# Create a Makefile
 
-Перед сложным проектом потренируемся так же создавать ```Makefile```. Потренируемся на наших "кошечках" с готовой конфигурацией. На боевом проекте мы усложним мэйк, потому как контейнеров там будет больше. Ну а чтобы понять принципы, лучше всего начать от простого к сложному - написать мэйк к проекту из одного контейнера.
+Before a complex project, we will also practice creating a ```Makefile```. Let's practice on our "cats" with a ready-made configuration. For the combat project, we will make the makeup more complicated, because there will be more containers there. Well, to understand the principles, it’s best to start from simple to complex - write a make-up for a project from one container.
 
-## Шаг 1. Узнаём имя нашего контейнера
+## Step 1. Find out the name of our container
 
-Находясь в папке проекта выведем cat-ом наш docker-compose:
+While in the project folder, let's cat output our docker-compose:
 
 ```cd ~/simple_docker_nginx_html/ && cat docker-compose.yml```
 
-![Создание Makefile](media/makefile_settings/step_0.png)
+![Creating Makefile](media/makefile_settings/step_0.png)
 
-В разделе ```container_name``` мы увидим имя контейнера: ```simple_nginx_html```. Один из поводов давать контейнерам имена - это тот факт, что по имени к ним удобно будет обращаться.
+In the ```container_name``` section we will see the name of the container: ```simple_nginx_html```. One of the reasons to give containers names is the fact that it will be convenient to refer to them by name.
 
-## Шаг 2. Установка переменной
+## Step 2. Setting the variable
 
-Создадим в этой же директории (~/simple_docker_nginx_html/) создадим наш Makefile:
+Let's create our Makefile in the same directory (~/simple_docker_nginx_html/):
 
 ``nano ~/simple_docker_nginx_html/Makefile``
 
-Первой переменной нашего Makefile будет переменная name, которой мы присвоим имя контейнера:
+The first variable in our Makefile will be the name variable, which we will assign to the name of the container:
 
 ```
 name = simple_nginx_html
 ```
 
-В ряде случаев мы будем использовать это, например, для вывода логов или для обращения к конкретному контейнеру по его имени.
+In some cases we will use this, for example, to display logs or to access a specific container by its name.
 
-## Шаг 3. Запуск конфигурации
+## Step 3. Run configuration
 
-Запуск контейнера в docker-compose осушествляется командой docker-compose up -d. Но дело в том, что конфигураций в compose поддерживается великое множество. Часто программисты и devops-инженеры имеют отдельную конфигурацию для разработки, отдельную для тестов и третью для продакшена.
+A container is launched in docker-compose using the docker-compose up -d command. But the fact is that compose supports a great many configurations. Often programmers and devops engineers have a separate configuration for development, a separate one for tests, and a third for production.
 
-В нашем случае конфигурация одна, и можно прописать в Makefile нашу команду напрямую. Однако поступим хитрее и укажем docker-compose на наш файл конфигурации:
+In our case, there is only one configuration, and we can write our command directly in the Makefile. However, let's be smarter and point docker-compose to our configuration file:
 
 ```@docker-compose -f ./docker-compose.yml up -d```
 
-Точка и слэш означают, что мы запускаем файл в той же директории, где лежит Makefile. Прелесть этого подхода в том, что:
+The dot and slash mean that we are running the file in the same directory where the Makefile is located. The beauty of this approach is that:
 
-а) мы можем указать другой путь до конфигурации, как относительный, так и абсолютный
+a) we can specify a different path to the configuration, both relative and absolute
 
-б) мы можем использовать разные имена конфигурации, например, test.yml и deploy.yml вместо канонического названия docker-compose.yml
+b) we can use different configuration names, for example, test.yml and deploy.yml instead of the canonical name docker-compose.yml
 
-Таким образом наша секция all будет выглядеть следующим образом:
+So our all section will look like this:
 
 ```
 all:
-	@printf "Запуск конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d
+@printf "Running configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d
 ```
 
-## Шаг 4. Сборка конфигурации
+## Step 4. Configuration build
 
-Собирает контейнер команда ```docker-compose up -d --build```. Оформим с её помощью следующую секцию остановки в Makefile, назовём её build:
+The container is assembled with the command ```docker-compose up -d --build```. Let's use it to create the following stopping section in the Makefile, let's call it build:
 
 ```
 build:
-	@printf "Сборка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+@printf "Building configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 ```
 
-## Шаг 5. Остановка конфигурации
+## Step 5. Stopping the configuration
 
-Останавливает контейнер команда ```docker-compose down```. Оформим с её помощью секцию остановки в Makefile, назовём её, например, down:
+The command ```docker-compose down``` stops the container. Let's use it to create a stop section in the Makefile, call it, for example, down:
 
 ```
 down:
-	@printf "Остановка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml down
+@printf "Stopping configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml down
 ```
 
-## Шаг 6. Пересборка конфигурации
+## Step 6. Rebuilding the configuration
 
-За пересборку контейнеров и применение изменений отвечает команда ```docker-compose up -d --build```. Создадим с этой командой секцию re, отвечающую за пересборку:
+The command ```docker-compose up -d --build``` is responsible for rebuilding containers and applying changes. Let's create a re section with this command, which is responsible for rebuilding:
 
 ```
 re:
-	@printf "Пересборка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+@printf "Rebuilding configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 ```
 
-## Шаг 7. Очистка конфигурации
+## Step 7: Clearing the configuration
 
-Ну и как же жить без clean и fclean? Конечно, в докере от этих команд куда меньше толка, чем в си, и результат их работы напрямую не виден. Однако если мы захотим очистить память, удалить лишние разделы и сети докера, они нам пригодятся.
+Well, how can you live without clean and fclean? Of course, in Docker these commands are much less useful than in C, and the result of their work is not directly visible. However, if we want to clear memory, remove unnecessary partitions and docker networks, they will be useful to us.
 
-```docker system prune --a``` - команда, удаляющая все неиспользуемые образы.
+```docker system prune --a``` is a command that removes all unused images.
 
-Если нам нужны только образы запущенных контейнеров, а все остальные уже отработанный материал, тогда выполнив эту команду во время работы контейнеров мы очищаем все неиспользуемые образы.
+If we only need images of running containers, and all the rest are already waste material, then by executing this command while the containers are running, we clean up all unused images.
 
-Создадим секцию clean:
+Let's create a clean section:
 
 ```
 clean: down
-	@printf "Очистка конфигурации ${name}...\n"
-	@docker system prune -a
+@printf "Cleaning configuration ${name}...\n"
+@docker system prune -a
 ```
 
-## Шаг 8. Глубокая очистка всех конфигураций
+## Step 8: Deep clean all configurations
 
-Ну а на fclean мы можем повесить тотальную очистку. Чтобы очистить все образы, которые есть на машине, мы сначала остановим все запущенные контейнеры командой ```docker stop $$(docker ps -qa)```, затем принудительно (с флагом --force) удалим всё, что плохо лежит (да и всё, что хорошо лежит - тоже).
+Well, on fclean we can use total cleaning. To clean up all the images that are on the machine, we will first stop all running containers with the command ```docker stop $$(docker ps -qa)```, then forcefully (with the --force flag) delete everything that is bad ( and everything that lies well, too).
 
-Далее мы удалим все сети и все подключенные разделы. Наш код будет выглядеть следующим образом:
+Next we will delete all networks and all connected partitions. Our code will look like this:
 
 ```
 fclean:
-	@printf "Полная очистка всех конфигураций docker\n"
-	@docker stop $$(docker ps -qa)
-	@docker system prune --all --force --volumes
-	@docker network prune --force
-	@docker volume prune --force
+@printf "Complete clearing of all docker configurations\n"
+@docker stop $$(docker ps -qa)
+@docker system prune --all --force --volumes
+@docker network prune --force
+@docker volume prune --force
 ```
 
-Выполнять ```make fclean``` стоит только тогда, когда очень захочется собрать весь проект make-ом с нуля.
+You should run ```make fclean``` only when you really want to build the entire project with make from scratch.
 
-Таким образом весь наш Makefile представляет из себя следующий код:
+Thus, our entire Makefile consists of the following code:
 
 ```
 name = simple_nginx_html
 all:
-	@printf "Запуск конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d
+@printf "Running configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d
 
 build:
-	@printf "Сборка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+@printf "Building configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 
 down:
-	@printf "Остановка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml down
+@printf "Stopping configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml down
 
-re:	down
-	@printf "Пересборка конфигурации ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+re:down
+@printf "Rebuilding configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 
 clean: down
-	@printf "Очистка конфигурации ${name}...\n"
-	@docker system prune -a
+@printf "Cleaning configuration ${name}...\n"
+@docker system prune -a
 
 fclean:
-	@printf "Полная очистка всех конфигураций docker\n"
-	@docker stop $$(docker ps -qa)
-	@docker system prune --all --force --volumes
-	@docker network prune --force
-	@docker volume prune --force
+@printf "Complete clearing of all docker configurations\n"
+@docker stop $$(docker ps -qa)
+@docker system prune --all --force --volumes
+@docker network prune --force
+@docker volume prune --force
 
-.PHONY	: all build down re clean fclean
+.PHONY : all build down re clean fclean
 ```
 
-Ну и версия с англоязычными комментариями для ленивых (её можно копипастить в терминал):
+Well, here’s a version with English comments for the lazy (you can copy-paste it into the terminal):
 
 ```
 name = simple_nginx_html
 all:
-	@printf "Launch configuration ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d
+@printf "Launch configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d
 
 build:
-	@printf "Building configuration ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+@printf "Building configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 
 down:
-	@printf "Stopping configuration ${name}...\n"
-	@docker-compose -f ./docker-compose.yml down
+@printf "Stopping configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml down
 
-re:	down
-	@printf "Rebuild configuration ${name}...\n"
-	@docker-compose -f ./docker-compose.yml up -d --build
+re:down
+@printf "Rebuild configuration ${name}...\n"
+@docker-compose -f ./docker-compose.yml up -d --build
 
 clean: down
-	@printf "Cleaning configuration ${name}...\n"
-	@docker system prune -a
+@printf "Cleaning configuration ${name}...\n"
+@docker system prune -a
 
 fclean:
-	@printf "Total clean of all configurations docker\n"
-	@docker stop $$(docker ps -qa)
-	@docker system prune --all --force --volumes
-	@docker network prune --force
-	@docker volume prune --force
+@printf "Total clean of all configurations docker\n"
+@docker stop $$(docker ps -qa)
+@docker system prune --all --force --volumes
+@docker network prune --force
+@docker volume prune --force
 
-.PHONY	: all build down re clean fclean
+.PHONY : all build down re clean fclean
 ```
 
-Да простят меня знатоки английского.
+May English experts forgive me.
 
-Потестируем данный Makefile на нашем тестовом контейнере и после перейдём уже к боевому проекту!
+Let's test this Makefile on our test container and then move on to the production project!
 
-Давайте же напишем что-то дольше, чем собачье устрой... Ну в общем, вы поняли меня.
+Let's write something longer than the dog's arrangement... Well, in general, you understand me.
 
 ![makefile](media/stickers/dogengine.png)
 
-> А ещё не забываем сделать снапшот и сохраниться в облачко!
+> And don’t forget to take a snapshot and save as a cloud!

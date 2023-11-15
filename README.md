@@ -1,35 +1,35 @@
-# inception
+#inception
 
-Проект inception (school 42/21).
+Project inception (school 42/21).
 
-Данный набор гайдов предназначен для поэтапного выполнения проекта inception.
+This set of guides is intended for the step-by-step implementation of the inception project.
 
-Гайды пронумерованы в порядке их изучения. 
+The guides are numbered in the order in which they are studied.
 
-## Этапы проекта
+## Project stages
 
-Коротко об этапах проекта:
+Briefly about the stages of the project:
 
-- [X] Установка ОС в virtualbox - [гайд 00](https://github.com/codesshaman/inception/blob/main/00_INSTALL_SYSTEM.md "Установка ОС в virtualbox")
-- [X] Установка софта внутри ОС - [гайд 01](https://github.com/codesshaman/inception/blob/main/01_INSTALL_SOFT.md "Установка софта внутри ОС")
-- [X] Проброс портов на хост - [гайд 02](https://github.com/codesshaman/inception/blob/main/02_PORTS_FORWARDING.md "Проброс портов на хост")
-- [X] Сохранение снимков в облако - [гайд 03](https://github.com/codesshaman/inception/blob/main/03_CLOUD_STORAGE.md "Сохранение снимков в облако")
-- [X] Предварительная настройка - [гайд 04](https://github.com/codesshaman/inception/blob/main/04_FIRST_SETTINGS.md "Предварительная настройка")
-- [X] Установка сертификата - [гайд 05](https://github.com/codesshaman/inception/blob/main/05_INSTALL_CERTIFICATE.md "Установка сертификата")
-- [X] Создание Makefile - [гайд 06](https://github.com/codesshaman/inception/blob/main/06_MAKEFILE_CREATION.md "Создание Makefile")
-- [X] Развёртывание nginx - [гайд 07](https://github.com/codesshaman/inception/blob/main/07_DOCKER_NGINX.md "Развёртывание nginx")
-- [X] Развёртывание mariadb - [гайд 08](https://github.com/codesshaman/inception/blob/main/08_DOCKER_MARIADB.md "Развёртывание mariadb")
-- [X] Развёртывание wordpress - [гайд 09](https://github.com/codesshaman/inception/blob/main/09_DOCKER_WORDPRESS.md "Развёртывание wordpress")
+- [X] Installing the OS in virtualbox - [guide 00](https://github.com/codesshaman/inception/blob/main/00_INSTALL_SYSTEM.md "Installing the OS in virtualbox")
+- [X] Installing software inside the OS - [guide 01](https://github.com/codesshaman/inception/blob/main/01_INSTALL_SOFT.md "Installing software inside the OS")
+- [X] Forwarding ports to the host - [guide 02](https://github.com/codesshaman/inception/blob/main/02_PORTS_FORWARDING.md "Forwarding ports to the host")
+- [X] Saving pictures to the cloud - [guide 03](https://github.com/codesshaman/inception/blob/main/03_CLOUD_STORAGE.md "Saving pictures to the cloud")
+- [X] Pre-setting - [guide 04](https://github.com/codesshaman/inception/blob/main/04_FIRST_SETTINGS.md "Pre-setting")
+- [X] Installing a certificate - [guide 05](https://github.com/codesshaman/inception/blob/main/05_INSTALL_CERTIFICATE.md "Installing a certificate")
+- [X] Creating a Makefile - [guide 06](https://github.com/codesshaman/inception/blob/main/06_MAKEFILE_CREATION.md "Creating a Makefile")
+- [X] Deploying nginx - [guide 07](https://github.com/codesshaman/inception/blob/main/07_DOCKER_NGINX.md "Deploying nginx")
+- [X] Deploying mariadb - [guide 08](https://github.com/codesshaman/inception/blob/main/08_DOCKER_MARIADB.md "Deploying mariadb")
+- [X] Deploying wordpress - [guide 09](https://github.com/codesshaman/inception/blob/main/09_DOCKER_WORDPRESS.md "Deploying wordpress")
 
-***БОНУСНАЯ ЧАСТЬ***
+***BONUS PART***
 
-- [X] Установка Redis - [гайд 10](https://github.com/codesshaman/inception/blob/main/10_WORDPRESS_REDIS.md "Установка Redis")
-- [X] Установка vsftpd - [гайд 11](https://github.com/codesshaman/inception/blob/main/11_VSFTPD_SERVER.md "Установка vsftpd")
-- [X] Установка Adminler - [гайд 12](https://github.com/codesshaman/inception/blob/main/12_INSTALL_ADMINER.md "Установка Adminler")
-- [X] Установка portainer - гайд [гайд 13](https://github.com/codesshaman/inception/blob/main/13_PORTAINER_INSTALL.md "Установка portainer")
+- [X] Installing Redis - [guide 10](https://github.com/codesshaman/inception/blob/main/10_WORDPRESS_REDIS.md "Installing Redis")
+- [X] Installing vsftpd - [guide 11](https://github.com/codesshaman/inception/blob/main/11_VSFTPD_SERVER.md "Installing vsftpd")
+- [X] Installing Adminler - [guide 12](https://github.com/codesshaman/inception/blob/main/12_INSTALL_ADMINER.md "Installing Adminler")
+- [X] Installing portainer - guide [guide 13](https://github.com/codesshaman/inception/blob/main/13_PORTAINER_INSTALL.md "Installing portainer")
 
-Проект написан с бонусами на 125.
+The project was written with bonuses of 125.
 
-Тем, кто хочет глубже разобраться в докере, советую так же данный материал: https://ivan-shamaev.ru/docker-compose-tutorial-container-image-install/
+For those who want to understand Docker more deeply, I also recommend this material: https://ivan-shamaev.ru/docker-compose-tutorial-container-image-install/
 
-Ставьте звёзды, если гайд понравился!
+Please put stars if you liked the guide!

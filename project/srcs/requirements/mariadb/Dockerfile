@@ -1,26 +1,19 @@
-FROM alpine:3.16
+FROM debian:bookworm
 
-ARG DB_NAME \
-    DB_USER \
-    DB_PASS
+RUN apt-get update && \
+    apt-get install -y mariadb-server
 
-RUN apk update && apk add --no-cache mariadb mariadb-client
+RUN mkdir -p /var/run/mysqld
+RUN chmod 777 /var /var/run /var/run/mysqld /run/mysqld /var/lib/mysql
 
-RUN mkdir /var/run/mysqld; \
-    chmod 777 /var/run/mysqld; \
-    { echo '[mysqld]'; \
-      echo 'skip-host-cache'; \
-      echo 'skip-name-resolve'; \
-      echo 'bind-address=0.0.0.0'; \
-    } | tee  /etc/my.cnf.d/docker.cnf; \
-    sed -i "s|skip-networking|skip-networking=0|g" \
-      /etc/my.cnf.d/mariadb-server.cnf
+COPY ./tools/s.sh /
 
-RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
+RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql --skip-test-db
+
+RUN chmod +x /s.sh
 
 EXPOSE 3306
 
-COPY requirements/mariadb/conf/create_db.sh .
-RUN sh create_db.sh && rm create_db.sh
-USER mysql
-CMD ["/usr/bin/mysqld", "--skip-log-error"]
+ENTRYPOINT ["sh", "/s.sh"]
+
+CMD ["mariadbd", "--user=mysql", "--bind-address=0.0.0.0"]

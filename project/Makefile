@@ -1,36 +1,43 @@
-name = inception
-all:
-	@printf "Launch configuration ${name}...\n"
-	@bash srcs/requirements/wordpress/tools/make_dir.sh
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d
-
-build:
-	@printf "Building configuration ${name}...\n"
-	@bash srcs/requirements/wordpress/tools/make_dir.sh
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d --build
+all: ascci_art
+	@chmod +x srcs/requirements/tools/Creat_file.sh
+	@sh srcs/requirements/tools/Creat_file.sh
+	@docker-compose -p inception -f srcs/docker-compose.yml up -d
 
 down:
-	@printf "Stopping configuration ${name}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down
+	@docker-compose -p inception -f srcs/docker-compose.yml down 
 
-re:
-	@printf "Rebuild configuration ${name}...\n"
-	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d --build
+stop:
+	@docker-compose -p inception -f srcs/docker-compose.yml stop
 
-clean: down
-	@printf "Cleaning configuration ${name}...\n"
+delete:
+	@sudo rm -rf /home/$(USER)/data
+
+clean:
+	@docker-compose -p inception -f srcs/docker-compose.yml down -v --remove-orphans --rmi all
+
+fclean: clean
 	@docker system prune -a
-	@sudo rm -rf ~/data/wordpress/*
-	@sudo rm -rf ~/data/mariadb/*
+	@sudo rm -rf /home/$(USER)/data
 
-# Осторожно! Fclean удаляет все образы Docker которые есть на машине!
-fclean:
-	@printf "Total clean of all configurations docker\n"
-	@docker stop $$(docker ps -qa)
-	@docker system prune --all --force --volumes
-	@docker network prune --force
-	@docker volume prune --force
-	@sudo rm -rf ~/data/wordpress/*
-	@sudo rm -rf ~/data/mariadb/*
+re: clean all
+	
+# docker-compose -p inception -f srcs/docker-compose.yml ps
 
-.PHONY	: all build down re clean fclean
+RED = \033[1;31m
+BLINK = \033[5m
+RESET = \033[0m
+ascci_art:
+	@clear
+	@printf "$(BLINK)$(RED)\n"
+	@echo " ██▓ ███▄    █  ▄████▄  ▓█████  ██▓███  ▄▄▄█████▓ ██▓ ▒█████   ███▄    █ "
+	@echo "▓██▒ ██ ▀█   █ ▒██▀ ▀█  ▓█   ▀ ▓██░  ██▒▓  ██▒ ▓▒▓██▒▒██▒  ██▒ ██ ▀█   █ "
+	@echo "▒██▒▓██  ▀█ ██▒▒▓█    ▄ ▒███   ▓██░ ██▓▒▒ ▓██░ ▒░▒██▒▒██░  ██▒▓██  ▀█ ██▒"
+	@echo "░██░▓██▒  ▐▌██▒▒▓▓▄ ▄██▒▒▓█  ▄ ▒██▄█▓▒ ▒░ ▓██▓ ░ ░██░▒██   ██░▓██▒  ▐▌██▒"
+	@echo "░██░▒██░   ▓██░▒ ▓███▀ ░░▒████▒▒██▒ ░  ░  ▒██▒ ░ ░██░░ ████▓▒░▒██░   ▓██░"
+	@echo "░▓  ░ ▒░   ▒ ▒ ░ ░▒ ▒  ░░░ ▒░ ░▒▓▒░ ░  ░  ▒ ░░   ░▓  ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ "
+	@echo " ▒ ░░ ░░   ░ ▒░  ░  ▒    ░ ░  ░░▒ ░         ░     ▒ ░  ░ ▒ ▒░ ░ ░░   ░ ▒░"
+	@echo " ▒ ░   ░   ░ ░ ░           ░   ░░         ░       ▒ ░░ ░ ░ ▒     ░   ░ ░ "
+	@echo " ░           ░ ░ ░         ░  ░                   ░      ░ ░           ░ "
+	@echo "               ░                                                          $(RESET)"
+
+

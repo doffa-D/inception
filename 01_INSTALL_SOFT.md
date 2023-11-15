@@ -1,75 +1,75 @@
-# Установка необходимого софта в Debian
+# Installing the necessary software in Debian
 
-### Шаг 1. Логин в системе
+### Step 1. Login to the system
 
-После установки и первой загрузки нам предложат выбрать нашу систему:
+After installation and the first boot, we will be asked to select our system:
 
-![установка софта](media/install_soft/install_step_0.png)
+![software installation](media/install_soft/install_step_0.png)
 
-Загрузимся под суперпользователем, введя имя пользователя root и пароль.
+Let's boot as superuser by entering the root username and password.
 
-> ! При вводе пароля сам пароль никак не будет отображаться на экране. Это нормально и сделано в целях безопасности.
+> ! When you enter a password, the password itself will not be displayed on the screen. This is normal and done for safety reasons.
 
-![установка софта](media/install_soft/install_step_1.png)
+![software installation](media/install_soft/install_step_1.png)
 
-### Шаг 2. Обновление списков репозиториев
+### Step 2: Update repository lists
 
-Обновим репозитории командой ```apt update```:
+Let's update the repositories with the ```apt update``` command:
 
-![установка софта](media/install_soft/install_step_2.png)
+![software installation](media/install_soft/install_step_2.png)
 
-### Шаг 3. Установка приложений
+### Step 3. Install applications
 
-После этого установим нужные нам приложения следующей командой:
+After that, install the applications we need with the following command:
 
 ```apt install -y sudo ufw docker docker-compose make openbox xinit kitty firefox-esr```
 
-Мы будем вводить эту команду вручную, так как в виртуальную машину нельзя копипастить. Позже мы откроем порты и подключимся к виртуальной машине через консоль, как к локальному серверу.
+We will enter this command manually, since copy-pasting cannot be done into a virtual machine. Later we will open the ports and connect to the virtual machine via the console as if we were connecting to a local server.
 
-А пока мы можем ошибиться при вводе данной команды:
+In the meantime, we may make a mistake when entering this command:
 
-![установка софта](media/install_soft/install_step_3.png)
+![software installation](media/install_soft/install_step_3.png)
 
-И в этом случае система скажет нам название пакета/пакетов, в имени которых мы ошиблись:
+And in this case, the system will tell us the name of the package/packages whose name we made a mistake:
 
-![установка софта](media/install_soft/install_step_4.png)
+![software installation](media/install_soft/install_step_4.png)
 
-Исправляем имя пакета и запускаем установку:
+Correct the package name and start the installation:
 
-![установка софта](media/install_soft/install_step_5.png)
+![software installation](media/install_soft/install_step_5.png)
 
-При установке мы увидим вывод, подобный этому:
+When installing, we will see output similar to this:
 
-![установка софта](media/install_soft/install_step_6.png)
+![software installation](media/install_soft/install_step_6.png)
 
-Это значит, что мы всё сделали правильно. В конце установки мы снова увидим вывод консоли.
+This means that we did everything right. At the end of the installation we will see the console output again.
 
-Теперь проверим установленный нами софт. Для начала запустим графическое окружение openbox.
+Now let's check the software we installed. First, let's launch the openbox graphical environment.
 
-За графику в линукс отвечает x-server. Запускаем его командой ```startx```
+x-server is responsible for graphics in Linux. We launch it with the command ```startx```
 
-Мы увидим чёрный экран. Не стоит отчаиваться, всё работает!
+We will see a black screen. Don't despair, everything works!
 
-Если мы наведём курсор на этот чёрный квадрат и щелкнем правой кнопкой по нему, то увидим всплывающее меню для запуска приложений. Так работает легковесное окржение openbox. Давайте запустим командную строку внутри нашего GUI:
+If we hover over this black square and right-click on it, we will see a pop-up menu for launching applications. This is how the lightweight openbox environment works. Let's run the command line inside our GUI:
 
-![установка софта](media/install_soft/install_step_7.png)
+![software installation](media/install_soft/install_step_7.png)
 
-![установка софта](media/install_soft/install_step_8.png)
+![software installation](media/install_soft/install_step_8.png)
 
-Теперь мы имеем возможность работать или через терминал GUI, или через терминал TTY.
+Now we have the opportunity to work either through a GUI terminal or through a TTY terminal.
 
-Запустим наш веб-браузер чтобы проверить его работу. Для этого выберем второй пункт ```Web Browser``` в меню запуска приложений:
+Let's launch our web browser to check its operation. To do this, select the second item ```Web Browser``` in the application launch menu:
 
-![установка софта](media/install_soft/install_step_9.png)
+![software installation](media/install_soft/install_step_9.png)
 
-В конфигурации нашего GUI поможет утиллита ObConf (четвёртый пункт), которая позволит изменить тему или установить обои.
+The ObConf utility (fourth point) will help in configuring our GUI, which will allow you to change the theme or set the wallpaper.
 
-Итак, мы проверили весь необходимый нам софт. Теперь мы можем выйти из GUI, выбрав последний пункт меню ```Exit```
+So, we have checked all the software we need. Now we can exit the GUI by selecting the last menu item ```Exit```
 
-![установка софта](media/install_soft/install_step_10.png)
+![software installation](media/install_soft/install_step_10.png)
 
-Итак, мы сделали необходимые настройки, и теперь у нас есть нечто, называемое лол:
+So we've made the necessary settings and now we have something called lol:
 
-![установка системы](media/stickers/lol.png)
+![system installation](media/stickers/lol.png)
 
-А в следующем гайде мы пробросим порты в это нечто.
+And in the next guide we will forward ports to this something.

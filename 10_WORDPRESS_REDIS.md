@@ -1,56 +1,56 @@
-# База Redis для кеша wordpress
+# Redis base for WordPress cache
 
-Приступим к бонусной части проекта. Для начала создадим базу Redis для кеширования нашего wordpress.
+Let's move on to the bonus part of the project. First, let's create a Redis database for caching our WordPress.
 
-Но сначала сделаем красоту из нашего дефолтного wp ибо видеть на своём сайте убогую тему по умолчанию как-то печально.
+But first, we’ll make beauty out of our default wp because it’s somehow sad to see a poor default theme on your website.
 
-Начнём с проверки: посмотрим, всё ли мы правильно сделали. Заходим в инструменты -> здоровье сайта:
+Let's start with a check: let's see if we did everything right. Go to tools -> site health:
 
-![установка темы](media/bonus_part/step_0.png)
+![set the theme](media/bonus_part/step_0.png)
 
-На странице здоровья переходим на вкладку информации:
+On the health page, go to the information tab:
 
-![установка темы](media/bonus_part/z.jpg)
+![install theme](media/bonus_part/z.jpg)
 
-Извиняюсь, не тот скрин... Итак, переходим на вкладку инфо:
+Sorry, wrong screen... So, go to the info tab:
 
-![установка темы](media/bonus_part/step_1.png)
+![set the theme](media/bonus_part/step_1.png)
 
-В самом низу открываем выпадающий список "разрешения файловой системы". Должно быть так, как показано на скриншоте:
+At the very bottom, open the “file system permissions” drop-down list. It should be like shown in the screenshot:
 
-![установка темы](media/bonus_part/step_2.png)
+![set the theme](media/bonus_part/step_2.png)
 
-Для ядра wordpress запись должна быть недоступна по соображениям безопасности, для остальных же разделов - доступна.
+For the WordPress core, the entry should be inaccessible for security reasons, but for other sections it should be available.
 
-Если вдруг какие-либо права на запись отсутствуют или что-то не так, как на этом скриншоте, можно ещё раз копипастить Dockerfile из гайда по wordpress и перезапустить проект. Должно заработать.
+If suddenly any write rights are missing or something is wrong, as in this screenshot, you can copy-paste the Dockerfile from the WordPress guide again and restart the project. It should work.
 
-Далее установим нормальную тему. Переходим в меню "внешний вид -> темы":
+Next, let's install a normal theme. Go to the menu "appearance -> themes":
 
-![установка темы](media/bonus_part/step_3.png)
+![set the theme](media/bonus_part/step_3.png)
 
-Добавить новую тему можно кнопкой "Add New":
+You can add a new topic using the "Add New" button:
 
-![установка темы](media/bonus_part/step_4.png)
+![set the theme](media/bonus_part/step_4.png)
 
-Тут мы можем выбрать любую понравившуюся тему. Мне приглянулась Inspiro:
+Here we can choose any topic we like. I liked Inspiro:
 
-![установка темы](media/bonus_part/step_5.png)
+![set the theme](media/bonus_part/step_5.png)
 
-После установки на месте кнопки "установить" появится кнопка "активировать". Нажимаем её и радуемся:
+After installation, instead of the “install” button, the “activate” button will appear. Click it and rejoice:
 
-![установка темы](media/bonus_part/step_6.png)
+![set the theme](media/bonus_part/step_6.png)
 
-Можно поэкспериментировать так же с установкой плагинов и оформлением хотя бы главной страницы сайта. Просто, для практики. Ну а потом приступать к установки Redis.
+You can also experiment with installing plugins and designing at least the main page of the site. Just for practice. Well, then proceed to installing Redis.
 
-## Шаг 1. Установка Redis
+## Step 1: Install Redis
 
-Для начала, как обычно, создадим Dockerfile для нашего редиса.
+First, as usual, let's create a Dockerfile for our radish.
 
-Если мы не знаем, с какой папки начинать, выберем для себя srcs:
+If we don’t know which folder to start with, we’ll choose srcs for ourselves:
 
 ``cd ~/project/srcs``
 
-Далее мы создадим папку для бонусов и директории бонусных проектов:
+Next, we will create a folder for bonuses and a directory for bonus projects:
 
 ``mkdir requirements/bonus``
 
@@ -64,87 +64,87 @@
 
 ``mkdir requirements/bonus/website/conf``
 
-В директории redis мы создадим Dockerfile:
+In the redis directory we will create a Dockerfile:
 
 ``nano requirements/bonus/redis/Dockerfile``
 
-В него добавим следующий код:
+Let's add the following code to it:
 
 ```
 FROM alpine:3.16
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache redis && \
-    sed -i "s|bind 127.0.0.1|#bind 127.0.0.1|g"  /etc/redis.conf && \
-    sed -i "s|# maxmemory <bytes>|maxmemory 20mb|g"  /etc/redis.conf && \
-    echo "maxmemory-policy allkeys-lru" >> /etc/redis.conf
+apk add --no-cache redis && \
+sed -i "s|bind 127.0.0.1|#bind 127.0.0.1|g" /etc/redis.conf && \
+sed -i "s|# maxmemory <bytes>|maxmemory 20mb|g" /etc/redis.conf && \
+echo "maxmemory-policy allkeys-lru" >> /etc/redis.conf
 
 EXPOSE 6379
 
 CMD [ "redis-server" , "/etc/redis.conf" ]
 ```
 
-Здесь мы выбрали актуальную версию alpine, установили туда редиску и немного поправили ей конфиг. Затем открыли дефолтный порт и запустили сервер редис, скормив ему готовый конфиг. Вуаля.
+Here we selected the current version of alpine, installed radish there and slightly corrected its config. Then we opened the default port and launched the radish server, feeding it the finished config. Voila.
 
-## Шаг 2. Настройка docker-compose
+## Step 2: Configuring docker-compose
 
-В docker-compose.yml мы добавим секцию редиса:
+In docker-compose.yml we will add a radish section:
 
 ```
-  redis:
-    build:
-      context: .
-      dockerfile: requirements/bonus/redis/Dockerfile
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - inception
-    restart: always
+redis:
+build:
+context: .
+dockerfile: requirements/bonus/redis/Dockerfile
+container_name: redis
+ports:
+- "6379:6379"
+networks:
+- inception
+restart: always
 ```
 
-## Шаг 3. Запуск и проверка
+## Step 3. Launch and check
 
-Снова перезапускаем конфигурацию. Так как никаких лишних конфигов у нас нет и переменные окружения передавать не надо, можем выйти в папку project и использовать Makefile:
+We restart the configuration again. Since we don’t have any extra configs and we don’t need to pass environment variables, we can go to the project folder and use the Makefile:
 
 ``make re``
 
-После того, как проект соберётся, проверим его работу следующим образом:
+After the project is assembled, let's check its operation as follows:
 
 ``docker exec -it redis redis-cli``
 
-После этой команды мы попадём в окружение редиса:
+After this command we will be surrounded by radishes:
 
 ``127.0.0.1:6379>``
 
-Здесь мы должны ввести простую команду:
+Here we have to enter a simple command:
 
 ``ping``
 
-Ответ должен быть таким:
+The answer should be:
 
 ``PONG``
 
-Если мы получили этот ответ, значит наш сервер работает и прекрасно пингуется. Поздравляю вас с этим замечательным событием!
+If we received this response, then our server is working and responds perfectly. Congratulations on this wonderful event!
 
-## Шаг 4. Установка плагина WP Redis
+## Step 4. Install the WP Redis plugin
 
-Заходим в wordpress на страницу поиска плагинов:
+Go to WordPress plugin search page:
 
-![бонусы wordpress](media/bonus_part/step_7.png)
+![wordpress bonuses](media/bonus_part/step_7.png)
 
-Вводим в поиск "Redis" и устанавливаем найденный плагин:
+Enter “Redis” into the search and install the found plugin:
 
-![бонусы wordpress](media/bonus_part/step_8.png)
+![wordpress bonuses](media/bonus_part/step_8.png)
 
-После установки нам нужно нажать "Активировать", и наш плагин заработет.
+After installation, we need to click “Activate” and our plugin will work.
 
-## Шаг 4. Проверка работы Redis
+## Step 4. Check that Redis is working
 
-Чтобы проверить работу кэша выполняем следующую команду:
+To check the cache operation, run the following command:
 
 ``docker exec -it redis redis-cli monitor``
 
-Если вывод OK - значит у нас всё работает, можем выходить из монитора по Ctrl+C. Редис запущен, расходимся!
+If the output is OK, then everything is working for us, we can exit the monitor using Ctrl+C. The radishes are running, let's disperse!
 
-![настройка vsftpd](media/stickers/walk.png)
+![vsftpd settings](media/stickers/walk.png)

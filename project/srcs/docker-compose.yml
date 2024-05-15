@@ -1,0 +1,157 @@
+version: '3'
+volumes:
+  mariadb:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/mariadb
+  wordpress:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/wordpress
+  portfolio:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/portfolio
+  adminer:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/adminer
+  portainer:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/portainer
+
+# o: bind: This option signifies that a host path is being bound into the volume. It indicates that the volume is mounted from the host's filesystem directly into the container, allowing the container to access and modify files in that path.
+
+# type: none: This option specifies that the volume is of type "none," which means that the volume is not managed by Docker and is directly mapped to the host filesystem without any additional functionality or management provided by Docker.
+
+networks:
+  inception:
+    driver: bridge
+    name: inception
+
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./requirements/nginx/
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress:/var/www/html/wordpress
+      - adminer:/var/www/html/adminer
+      - portfolio:/var/www/html/portfolio
+    restart: always
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb/
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    expose:
+      - 3306
+    networks:
+      - inception
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    build:
+      context: ./requirements/wordpress/
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    expose:
+      - 9000
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress:/var/www/html/wordpress
+    restart: always
+
+  redis:
+    container_name: redis
+    build:
+      context: ./requirements/bonus/redis/
+      dockerfile: Dockerfile
+    expose:
+      - 6379
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+    restart: always
+
+  ftp:
+    container_name: ftp
+    build:
+      context: ./requirements/bonus/ftp/
+      dockerfile: Dockerfile
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    ports:
+      - "21:21"
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html/wordpress
+    restart: always
+
+  adminer:
+    container_name: adminer
+    build:
+      context: ./requirements/bonus/adminer/
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+    volumes:
+      - adminer:/var/www/html/adminer
+    restart: always
+
+  portfolio:
+    container_name: portfolio
+    build:
+      context: ./requirements/bonus/portfolio/
+      dockerfile: Dockerfile
+    depends_on:
+      - nginx
+    networks:
+      - inception
+    volumes:
+      - portfolio:/var/www/html/portfolio
+    restart: on-failure
+
+  portainer:
+    container_name: portainer
+    build:
+      context: ./requirements/bonus/portainer/
+      dockerfile: Dockerfile
+    networks:
+      - inception
+    volumes:
+      - portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: on-failure
+
